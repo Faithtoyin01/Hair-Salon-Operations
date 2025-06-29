@@ -1,0 +1,19 @@
+body {
+  font-family: 'Inconsolata', sans-serif;
+  overflow-x: hidden;
+  background-color: #132D39;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #FCE74F;
+  border-radius: 5px;
+}
+
