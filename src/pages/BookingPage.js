@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -9,7 +9,11 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Card,
+  CardContent,
+  Fade,
 } from "@mui/material";
+import { Event as EventIcon } from "@mui/icons-material";
 
 const mockServices = [
   { id: 1, name: "Haircut", price: 30, duration: "30 mins" },
@@ -39,54 +43,88 @@ const BookingPage = ({ bookAppointment }) => {
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 3,
-        maxWidth: "400px",
-        mx: "auto",
-      }}
-    >
-      <Typography variant="h5">Book an Appointment</Typography>
-      <FormControl fullWidth>
-        <InputLabel>Service</InputLabel>
-        <Select value={service} onChange={(e) => setService(e.target.value)}>
-          {mockServices.map((s) => (
-            <MenuItem key={s.id} value={s.name}>
-              {s.name} (${s.price})
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl fullWidth>
-        <InputLabel>Stylist</InputLabel>
-        <Select value={stylist} onChange={(e) => setStylist(e.target.value)}>
-          {mockStylists.map((s) => (
-            <MenuItem key={s.id} value={s.name}>
-              {s.name} - {s.specialty}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <TextField
-        label="Date"
-        type="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-        InputLabelProps={{ shrink: true }}
-      />
-      <TextField
-        label="Time"
-        type="time"
-        value={time}
-        onChange={(e) => setTime(e.target.value)}
-        InputLabelProps={{ shrink: true }}
-      />
-      <Button variant="contained" onClick={handleSubmit}>
-        Book Appointment
-      </Button>
-    </Box>
+    <Fade in timeout={1000}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
+          maxWidth: "400px",
+          mx: "auto",
+          mt: 4,
+        }}
+      >
+        <Card sx={{ bgcolor: "background.paper" }}>
+          <CardContent
+            sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+          >
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 500,
+                color: "primary.main",
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <EventIcon /> Book an Appointment
+            </Typography>
+            <FormControl fullWidth>
+              <InputLabel>Service</InputLabel>
+              <Select
+                value={service}
+                onChange={(e) => setService(e.target.value)}
+              >
+                {mockServices.map((s) => (
+                  <MenuItem key={s.id} value={s.name}>
+                    {s.name} (${s.price})
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel>Stylist</InputLabel>
+              <Select
+                value={stylist}
+                onChange={(e) => setStylist(e.target.value)}
+              >
+                {mockStylists.map((s) => (
+                  <MenuItem key={s.id} value={s.name}>
+                    {s.name} - {s.specialty}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              label="Date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              fullWidth
+              label="Time"
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+            <Button
+              fullWidth
+              variant="contained"
+              color="secondary"
+              onClick={handleSubmit}
+              startIcon={<EventIcon />}
+            >
+              Book Appointment
+            </Button>
+          </CardContent>
+        </Card>
+      </Box>
+    </Fade>
   );
 };
 

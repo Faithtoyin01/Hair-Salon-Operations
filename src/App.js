@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Container, Box } from "@mui/material";
 import { useSnackbar } from "notistack";
 import AppBar from "./components/AppBar";
@@ -57,30 +57,58 @@ const App = () => {
 
   return (
     <BrowserRouter>
-      <Box sx={{ fontFamily: "Roboto, sans-serif" }}>
+      <Box
+        sx={{
+          fontFamily: "Roboto, sans-serif",
+          minHeight: "100vh",
+          bgcolor: "background.default",
+        }}
+      >
         <AppBar user={user} setUser={setUser} />
         <Container
-          sx={{ mt: 4, display: "flex", flexDirection: "column", gap: 4 }}
+          sx={{
+            mt: 4,
+            display: "flex",
+            flexDirection: "column",
+            gap: 4,
+            pb: 4,
+          }}
         >
           <Routes>
             <Route path="/" element={<HomePage handleLogin={handleLogin} />} />
             <Route path="/login" element={<LoginPage setUser={setUser} />} />
             <Route
               path="/booking"
-              element={<BookingPage bookAppointment={bookAppointment} />}
+              element={
+                user ? (
+                  <BookingPage bookAppointment={bookAppointment} />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
             />
             <Route
               path="/customer-dashboard"
-              element={<CustomerDashboard appointments={appointments} />}
+              element={
+                user === "customer" ? (
+                  <CustomerDashboard appointments={appointments} />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
             />
             <Route
               path="/admin-dashboard"
               element={
-                <AdminDashboard
-                  appointments={appointments}
-                  inventory={inventory}
-                  updateInventory={updateInventory}
-                />
+                user === "admin" ? (
+                  <AdminDashboard
+                    appointments={appointments}
+                    inventory={inventory}
+                    updateInventory={updateInventory}
+                  />
+                ) : (
+                  <Navigate to="/login" />
+                )
               }
             />
           </Routes>
