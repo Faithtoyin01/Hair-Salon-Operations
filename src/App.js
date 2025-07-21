@@ -39,13 +39,13 @@ const App = () => {
 
   // Refresh data from localStorage on updates
   useEffect(() => {
-    setUsers(getUsers());
-    setAppointments(getAppointments());
-    setServices(getServices());
-    setStaff(getStaff());
-    setInventory(getInventory());
-    setFeedback(getFeedback());
-    setPayments(getPayments());
+    setUsers(getUsers() || []);
+    setAppointments(getAppointments() || []);
+    setServices(getServices() || []);
+    setStaff(getStaff() || []);
+    setInventory(getInventory() || []);
+    setFeedback(getFeedback() || []);
+    setPayments(getPayments() || []);
   }, [appointments, staff, services, inventory, feedback, payments]);
 
   const handleLogin = (userData) => {
@@ -151,6 +151,7 @@ const App = () => {
                       updateData("feedback", data, "Feedback submitted!")
                     }
                     services={services}
+                    staff={staff}
                   />
                 ) : (
                   <Navigate to="/login" />
@@ -199,6 +200,7 @@ const App = () => {
                     setAppointments={(data) =>
                       updateData("appointments", data, "Queue updated!")
                     }
+                    services={services}
                     staff={staff}
                   />
                 ) : (

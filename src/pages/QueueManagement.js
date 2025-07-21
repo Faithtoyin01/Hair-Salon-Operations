@@ -19,8 +19,8 @@ import { sendMockNotification } from "../utils";
 const QueueManagement = ({
   appointments,
   setAppointments,
-  staff,
   services,
+  staff,
 }) => {
   const [waitTime, setWaitTime] = useState(0);
 
@@ -44,6 +44,24 @@ const QueueManagement = ({
     const pending = appointments.filter((a) => a.status === "Booked").length;
     setWaitTime(pending * 15); // Assume 15 minutes per appointment
   };
+
+  if (!services || !staff) {
+    return (
+      <Fade in timeout={1000}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }}>
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: 500, color: "primary.main" }}
+          >
+            Queue Management
+          </Typography>
+          <Typography color="error.main">
+            Error: Services or staff data is not available.
+          </Typography>
+        </Box>
+      </Fade>
+    );
+  }
 
   return (
     <Fade in timeout={1000}>
