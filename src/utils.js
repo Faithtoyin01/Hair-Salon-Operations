@@ -98,7 +98,6 @@ export const getPayments = () => {
 };
 
 export const sendMockNotification = (recipient, message) => {
-  // Mock email/SMS notification
   console.log(`Sending notification to ${recipient}: ${message}`);
   // In a real app, integrate with email/SMS service like Twilio
 };

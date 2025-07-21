@@ -15,17 +15,16 @@ import {
   Select,
   MenuItem,
   Table,
-  TableBody,
-  TableCell,
   TableHead,
   TableRow,
+  TableCell,
+  TableBody,
 } from "@mui/material";
 import {
   Event as EventIcon,
   Inventory as InventoryIcon,
   Assessment as ReportIcon,
   Add as AddIcon,
-  Edit as EditIcon,
 } from "@mui/icons-material";
 import { sendMockNotification } from "../utils";
 
@@ -63,14 +62,15 @@ const AdminDashboard = ({
 
   const handleAddService = () => {
     if (newService.name && newService.description && newService.price) {
-      setServices([
+      const newServices = [
         ...services,
         {
           id: services.length + 1,
           ...newService,
           price: parseFloat(newService.price),
         },
-      ]);
+      ];
+      setServices(newServices);
       setNewService({ name: "", description: "", price: "" });
     } else {
       alert("Please fill in all service fields");
@@ -79,7 +79,7 @@ const AdminDashboard = ({
 
   const handleAddProduct = () => {
     if (newProduct.name && newProduct.stock && newProduct.price) {
-      setInventory([
+      const newInventory = [
         ...inventory,
         {
           id: inventory.length + 1,
@@ -87,7 +87,8 @@ const AdminDashboard = ({
           stock: parseInt(newProduct.stock),
           price: parseFloat(newProduct.price),
         },
-      ]);
+      ];
+      setInventory(newInventory);
       if (parseInt(newProduct.stock) < 5) {
         sendMockNotification(
           "admin@example.com",
@@ -108,7 +109,13 @@ const AdminDashboard = ({
       newStaff.phone &&
       newStaff.email
     ) {
-      setStaff([...staff, { id: staff.length + 1, ...newStaff }]);
+      const newStaffMember = {
+        id: staff.length + 1,
+        ...newStaff,
+        name: `${newStaff.firstName} ${newStaff.lastName}`,
+      };
+      const updatedStaff = [...staff, newStaffMember];
+      setStaff(updatedStaff);
       setNewStaff({
         firstName: "",
         lastName: "",
@@ -170,10 +177,12 @@ const AdminDashboard = ({
                 {appointments.map((a) => (
                   <TableRow key={a.id}>
                     <TableCell>
-                      {services.find((s) => s.id === a.serviceId)?.name}
+                      {services.find((s) => s.id === a.serviceId)?.name ||
+                        "Unknown Service"}
                     </TableCell>
                     <TableCell>
-                      {staff.find((s) => s.id === a.stylistId)?.name}
+                      {staff.find((s) => s.id === a.stylistId)?.name ||
+                        "Unknown Stylist"}
                     </TableCell>
                     <TableCell>{a.dateTime.split("T")[0]}</TableCell>
                     <TableCell>{a.status}</TableCell>
@@ -337,7 +346,9 @@ const AdminDashboard = ({
                   sx={{ bgcolor: "background.default", borderRadius: 2, mb: 1 }}
                 >
                   <ListItemText
-                    primary={`${s.firstName} ${s.lastName} - ${s.position}`}
+                    primary={`${s.name || `${s.firstName} ${s.lastName}`} - ${
+                      s.position
+                    }`}
                     secondary={`Email: ${s.email} | Specialty: ${
                       s.specialty || "N/A"
                     }`}

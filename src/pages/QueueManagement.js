@@ -16,7 +16,12 @@ import {
 } from "@mui/icons-material";
 import { sendMockNotification } from "../utils";
 
-const QueueManagement = ({ appointments, setAppointments, staff }) => {
+const QueueManagement = ({
+  appointments,
+  setAppointments,
+  staff,
+  services,
+}) => {
   const [waitTime, setWaitTime] = useState(0);
 
   const handleMarkReady = (appointmentId) => {
@@ -28,7 +33,8 @@ const QueueManagement = ({ appointments, setAppointments, staff }) => {
     sendMockNotification(
       "customer@example.com",
       `Your appointment with ${
-        staff.find((s) => s.id === appointment.stylistId)?.name
+        staff.find((s) => s.id === appointment.stylistId)?.name ||
+        "Unknown Stylist"
       } is ready!`
     );
   };
@@ -79,9 +85,15 @@ const QueueManagement = ({ appointments, setAppointments, staff }) => {
                     }}
                   >
                     <ListItemText
-                      primary={`Customer ID: ${appointment.customerId} | Service: ${appointment.serviceId}`}
+                      primary={`Customer ID: ${
+                        appointment.customerId
+                      } | Service: ${
+                        services.find((s) => s.id === appointment.serviceId)
+                          ?.name || "Unknown Service"
+                      }`}
                       secondary={`Stylist: ${
-                        staff.find((s) => s.id === appointment.stylistId)?.name
+                        staff.find((s) => s.id === appointment.stylistId)
+                          ?.name || "Unknown Stylist"
                       } | Time: ${appointment.dateTime.split("T")[1]}`}
                     />
                     <Button

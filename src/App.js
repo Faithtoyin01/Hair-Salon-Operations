@@ -37,6 +37,17 @@ const App = () => {
     if (currentUser) setUser(currentUser);
   }, []);
 
+  // Refresh data from localStorage on updates
+  useEffect(() => {
+    setUsers(getUsers());
+    setAppointments(getAppointments());
+    setServices(getServices());
+    setStaff(getStaff());
+    setInventory(getInventory());
+    setFeedback(getFeedback());
+    setPayments(getPayments());
+  }, [appointments, staff, services, inventory, feedback, payments]);
+
   const handleLogin = (userData) => {
     setUser(userData);
     localStorage.setItem("currentUser", JSON.stringify(userData));
@@ -61,6 +72,13 @@ const App = () => {
   const updateData = (key, data, successMessage) => {
     localStorage.setItem(key, JSON.stringify(data));
     enqueueSnackbar(successMessage, { variant: "success" });
+    // Trigger state refresh
+    if (key === "appointments") setAppointments(data);
+    if (key === "staff") setStaff(data);
+    if (key === "services") setServices(data);
+    if (key === "inventory") setInventory(data);
+    if (key === "feedback") setFeedback(data);
+    if (key === "payments") setPayments(data);
   };
 
   return (
@@ -88,7 +106,6 @@ const App = () => {
           }}
         >
           <Routes>
-            <Route path="/" element={<HomePage handleLogin={handleLogin} />} />
             <Route path="/" element={<Navigate to="/login" />} />
             <Route
               path="/login"

@@ -108,10 +108,10 @@ const CustomerDashboard = ({
                       <ListItemText
                         primary={`${
                           services.find((s) => s.id === appointment.serviceId)
-                            ?.name
+                            ?.name || "Unknown Service"
                         } with ${
                           staff.find((s) => s.id === appointment.stylistId)
-                            ?.name
+                            ?.name || "Unknown Stylist"
                         }`}
                         secondary={`Date: ${
                           appointment.dateTime.split("T")[0]

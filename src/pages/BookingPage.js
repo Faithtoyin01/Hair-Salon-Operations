@@ -37,22 +37,29 @@ const BookingPage = ({
 
   const handleSubmit = () => {
     if (service && stylist && date && time && paymentMethod) {
+      const selectedService = services.find((s) => s.name === service);
+      const selectedStylist = staff.find((s) => s.name === stylist);
+      if (!selectedService || !selectedStylist) {
+        alert("Invalid service or stylist selected");
+        return;
+      }
       const newAppointment = {
         id: appointments.length + 1,
         customerId: user.id,
-        stylistId: staff.find((s) => s.name === stylist).id,
-        serviceId: services.find((s) => s.name === service).id,
+        stylistId: selectedStylist.id,
+        serviceId: selectedService.id,
         dateTime: `${date}T${time}`,
         status: "Booked",
         paymentStatus: "Paid",
       };
-      setAppointments([...appointments, newAppointment]);
+      const newAppointments = [...appointments, newAppointment];
+      setAppointments(newAppointments);
       setPayments([
         ...payments,
         {
           id: payments.length + 1,
           customerId: user.id,
-          amount: services.find((s) => s.name === service).price,
+          amount: selectedService.price,
           paymentMethod,
           date: new Date().toISOString(),
         },
