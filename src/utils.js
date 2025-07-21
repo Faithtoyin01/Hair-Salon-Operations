@@ -124,32 +124,42 @@ export const getHairstyles = () => {
         name: "Cornrows",
         description:
           "Neat, tight braids close to the scalp, perfect for a sleek look.",
-        image: "https://via.placeholder.com/300x200?text=Cornrows",
+        image:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+        imageUrl: "https://via.placeholder.com/300x200?text=Cornrows",
       },
       {
         id: 2,
         name: "Box Braids",
         description:
           "Individual braids for a versatile, low-maintenance style.",
-        image: "https://via.placeholder.com/300x200?text=Box+Braids",
+        image:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+        imageUrl: "https://via.placeholder.com/300x200?text=Box+Braids",
       },
       {
         id: 3,
         name: "Weave-On",
         description: "Sew-in extensions for added length and volume.",
-        image: "https://via.placeholder.com/300x200?text=Weave-On",
+        image:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+        imageUrl: "https://via.placeholder.com/300x200?text=Weave-On",
       },
       {
         id: 4,
         name: "Fulani Braids",
         description: "Intricate braids with beads, inspired by Fulani culture.",
-        image: "https://via.placeholder.com/300x200?text=Fulani+Braids",
+        image:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+        imageUrl: "https://via.placeholder.com/300x200?text=Fulani+Braids",
       },
       {
         id: 5,
         name: "Ghana Weaving",
         description: "Elegant woven style for a bold look.",
-        image: "https://via.placeholder.com/300x200?text=Ghana+Weaving",
+        image:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+        imageUrl: "https://via.placeholder.com/300x200?text=Ghana+Weaving",
       },
     ]
   );

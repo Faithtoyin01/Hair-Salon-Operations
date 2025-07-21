@@ -9,32 +9,11 @@ import {
   Grid,
 } from "@mui/material";
 import { Style as StyleIcon } from "@mui/icons-material";
-
-const hairstyles = [
-  {
-    name: "Cornrows",
-    description:
-      "Neat, tight braids close to the scalp, perfect for a sleek look.",
-    image: "https://via.placeholder.com/300x200?text=Cornrows",
-  },
-  {
-    name: "Box Braids",
-    description: "Individual braids for a versatile, low-maintenance style.",
-    image: "https://via.placeholder.com/300x200?text=Box+Braids",
-  },
-  {
-    name: "Weave-On",
-    description: "Sew-in extensions for added length and volume.",
-    image: "https://via.placeholder.com/300x200?text=Weave-On",
-  },
-  {
-    name: "Fulani Braids",
-    description: "Intricate braids with beads, inspired by Fulani culture.",
-    image: "https://via.placeholder.com/300x200?text=Fulani+Braids",
-  },
-];
+import { getHairstyles } from "../utils";
 
 const HairstylesPage = () => {
+  const hairstyles = getHairstyles();
+
   return (
     <Fade in timeout={1000}>
       <Box
@@ -72,8 +51,10 @@ const HairstylesPage = () => {
                   component="img"
                   height="200"
                   image={
-                    style.image ||
-                    `https://via.placeholder.com/300x200?text=${style.name}`
+                    style.image && style.image.startsWith("data:image/")
+                      ? style.image
+                      : style.imageUrl ||
+                        `https://via.placeholder.com/300x200?text=${style.name}`
                   }
                   alt={style.name}
                 />

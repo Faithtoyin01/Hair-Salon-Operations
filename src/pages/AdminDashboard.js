@@ -14,12 +14,12 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Input,
   Table,
   TableHead,
+  TableBody,
   TableRow,
   TableCell,
-  TableBody,
-  Input,
 } from "@mui/material";
 import {
   Event as EventIcon,
@@ -70,8 +70,10 @@ const AdminDashboard = ({
     name: "",
     description: "",
     image: "",
+    imageUrl: "",
   });
-  const [imagePreview, setImagePreview] = useState("");
+  const [staffImagePreview, setStaffImagePreview] = useState("");
+  const [hairstyleImagePreview, setHairstyleImagePreview] = useState("");
 
   const handleAddService = () => {
     if (newService.name && newService.description && newService.price) {
@@ -140,23 +142,28 @@ const AdminDashboard = ({
         bio: "",
         image: "",
       });
-      setImagePreview("");
+      setStaffImagePreview("");
     } else {
       alert("Please fill in all staff fields");
     }
   };
 
   const handleAddHairstyle = () => {
-    if (newHairstyle.name && newHairstyle.description && newHairstyle.image) {
+    if (
+      newHairstyle.name &&
+      newHairstyle.description &&
+      (newHairstyle.image || newHairstyle.imageUrl)
+    ) {
       const newHairstyles = [
         ...hairstyles,
         { id: hairstyles.length + 1, ...newHairstyle },
       ];
       setHairstyles(newHairstyles);
       saveHairstyles(newHairstyles);
-      setNewHairstyle({ name: "", description: "", image: "" });
+      setNewHairstyle({ name: "", description: "", image: "", imageUrl: "" });
+      setHairstyleImagePreview("");
     } else {
-      alert("Please fill in all hairstyle fields");
+      alert("Please fill in all hairstyle fields and provide an image or URL");
     }
   };
 
@@ -176,13 +183,27 @@ const AdminDashboard = ({
     }
   };
 
-  const handleImageChange = (e) => {
+  const handleStaffImageChange = (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setNewStaff({ ...newStaff, image: reader.result });
-        setImagePreview(reader.result);
+        setStaffImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert("Please select a valid image file");
+    }
+  };
+
+  const handleHairstyleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewHairstyle({ ...newHairstyle, image: reader.result });
+        setHairstyleImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
     } else {
@@ -496,14 +517,16 @@ const AdminDashboard = ({
                   <Input
                     type="file"
                     accept="image/*"
-                    onChange={handleImageChange}
+                    onChange={handleStaffImageChange}
                     sx={{ mt: 1 }}
                   />
-                  {imagePreview && (
+                  {staffImagePreview && (
                     <Box sx={{ mt: 2 }}>
-                      <Typography variant="body2">Image Preview:</Typography>
+                      <Typography variant="body2">
+                        Staff Image Preview:
+                      </Typography>
                       <img
-                        src={imagePreview}
+                        src={staffImagePreview}
                         alt="Preview"
                         style={{
                           maxWidth: "100px",
@@ -574,11 +597,33 @@ const AdminDashboard = ({
                   })
                 }
               />
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleHairstyleImageChange}
+                sx={{ mt: 1 }}
+              />
+              {hairstyleImagePreview && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="body2">
+                    Hairstyle Image Preview:
+                  </Typography>
+                  <img
+                    src={hairstyleImagePreview}
+                    alt="Preview"
+                    style={{
+                      maxWidth: "100px",
+                      maxHeight: "100px",
+                      borderRadius: "8px",
+                    }}
+                  />
+                </Box>
+              )}
               <TextField
-                label="Image URL"
-                value={newHairstyle.image}
+                label="Image URL (optional)"
+                value={newHairstyle.imageUrl}
                 onChange={(e) =>
-                  setNewHairstyle({ ...newHairstyle, image: e.target.value })
+                  setNewHairstyle({ ...newHairstyle, imageUrl: e.target.value })
                 }
                 placeholder="e.g., https://example.com/hairstyle.jpg"
               />
