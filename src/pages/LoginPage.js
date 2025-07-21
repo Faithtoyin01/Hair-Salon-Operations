@@ -19,7 +19,7 @@ import {
   Login as LoginIcon,
   PersonAdd as SignupIcon,
 } from "@mui/icons-material";
-import { saveUser } from "./utils";
+import { saveUser } from "../utils";
 
 const LoginPage = ({ setUser, users, setUsers }) => {
   const [isLogin, setIsLogin] = useState(true);
