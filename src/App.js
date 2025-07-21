@@ -10,6 +10,7 @@ import CustomerDashboard from "./pages/CustomerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import StylistPortfolio from "./pages/StylistPortfolio";
 import QueueManagement from "./pages/QueueManagement";
+import HairstylesPage from "./pages/HairstylesPage";
 import {
   getUsers,
   getCurrentUser,
@@ -19,6 +20,7 @@ import {
   getInventory,
   getFeedback,
   getPayments,
+  getHairstyles,
 } from "./utils";
 
 const App = () => {
@@ -30,6 +32,7 @@ const App = () => {
   const [inventory, setInventory] = useState(getInventory());
   const [feedback, setFeedback] = useState(getFeedback());
   const [payments, setPayments] = useState(getPayments());
+  const [hairstyles, setHairstyles] = useState(getHairstyles());
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
@@ -46,7 +49,16 @@ const App = () => {
     setInventory(getInventory() || []);
     setFeedback(getFeedback() || []);
     setPayments(getPayments() || []);
-  }, [appointments, staff, services, inventory, feedback, payments]);
+    setHairstyles(getHairstyles() || []);
+  }, [
+    appointments,
+    staff,
+    services,
+    inventory,
+    feedback,
+    payments,
+    hairstyles,
+  ]);
 
   const handleLogin = (userData) => {
     setUser(userData);
@@ -72,13 +84,13 @@ const App = () => {
   const updateData = (key, data, successMessage) => {
     localStorage.setItem(key, JSON.stringify(data));
     enqueueSnackbar(successMessage, { variant: "success" });
-    // Trigger state refresh
     if (key === "appointments") setAppointments(data);
     if (key === "staff") setStaff(data);
     if (key === "services") setServices(data);
     if (key === "inventory") setInventory(data);
     if (key === "feedback") setFeedback(data);
     if (key === "payments") setPayments(data);
+    if (key === "hairstyles") setHairstyles(data);
   };
 
   return (
@@ -181,11 +193,19 @@ const App = () => {
                     }
                     payments={payments}
                     feedback={feedback}
+                    hairstyles={hairstyles}
+                    setHairstyles={(data) =>
+                      updateData("hairstyles", data, "Hairstyle added!")
+                    }
                   />
                 ) : (
                   <Navigate to="/login" />
                 )
               }
+            />
+            <Route
+              path="/stylist-portfolio"
+              element={<StylistPortfolio staff={staff} feedback={feedback} />}
             />
             <Route
               path="/stylist-portfolio/:stylistId"
@@ -208,6 +228,7 @@ const App = () => {
                 )
               }
             />
+            <Route path="/hairstyles" element={<HairstylesPage />} />
           </Routes>
         </Container>
       </Box>

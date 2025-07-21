@@ -6,10 +6,10 @@ export const getUsers = () => {
         username: "admin",
         password: "admin123",
         role: "admin",
-        firstName: "Admin",
-        lastName: "User",
+        firstName: "Chukwuma",
+        lastName: "Okeke",
         email: "admin@example.com",
-        phone: "1234567890",
+        phone: "08012345678",
       },
     ]
   );
@@ -30,18 +30,23 @@ export const getAppointments = () => {
 export const getServices = () => {
   return (
     JSON.parse(localStorage.getItem("services")) || [
-      { id: 1, name: "Haircut", description: "Standard haircut", price: 30 },
+      {
+        id: 1,
+        name: "Braids",
+        description: "Traditional Nigerian braids",
+        price: 5000,
+      },
       {
         id: 2,
-        name: "Hair Coloring",
-        description: "Full color application",
-        price: 60,
+        name: "Weave-On",
+        description: "Sew-in weave installation",
+        price: 10000,
       },
       {
         id: 3,
-        name: "Hair Treatment",
-        description: "Deep conditioning",
-        price: 50,
+        name: "Hair Coloring",
+        description: "Custom hair coloring",
+        price: 15000,
       },
     ]
   );
@@ -52,23 +57,31 @@ export const getStaff = () => {
     JSON.parse(localStorage.getItem("staff")) || [
       {
         id: 1,
-        firstName: "Jane",
-        lastName: "Doe",
-        name: "Jane Doe",
+        firstName: "Chiamaka",
+        lastName: "Okeke",
+        name: "Chiamaka Okeke",
         position: "Stylist",
-        phone: "1234567890",
-        email: "jane@example.com",
-        specialty: "Haircut & Styling",
+        phone: "08012345678",
+        email: "chiamaka@example.com",
+        specialty: "Braids & Weaves",
+        experience: "5 years",
+        bio: "Chiamaka is a skilled stylist specializing in intricate braids and weaves, inspired by Nigerian trends.",
+        image:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
       },
       {
         id: 2,
-        firstName: "John",
-        lastName: "Smith",
-        name: "John Smith",
+        firstName: "Tunde",
+        lastName: "Adebayo",
+        name: "Tunde Adebayo",
         position: "Stylist",
-        phone: "0987654321",
-        email: "john@example.com",
-        specialty: "Coloring & Treatments",
+        phone: "08098765432",
+        email: "tunde@example.com",
+        specialty: "Hair Coloring & Cuts",
+        experience: "3 years",
+        bio: "Tunde brings creativity to hair coloring and precision cuts, with a passion for vibrant styles.",
+        image:
+          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
       },
     ]
   );
@@ -79,12 +92,18 @@ export const getInventory = () => {
     JSON.parse(localStorage.getItem("inventory")) || [
       {
         id: 1,
-        name: "Shampoo",
+        name: "Hair Extensions",
         stock: 20,
-        price: 10,
-        supplier: "BeautySupplies",
+        price: 5000,
+        supplier: "Lagos Beauty Supplies",
       },
-      { id: 2, name: "Hair Dye", stock: 15, price: 15, supplier: "ColorCo" },
+      {
+        id: 2,
+        name: "Hair Dye",
+        stock: 15,
+        price: 3000,
+        supplier: "ColorTrend NG",
+      },
     ]
   );
 };
@@ -95,6 +114,49 @@ export const getFeedback = () => {
 
 export const getPayments = () => {
   return JSON.parse(localStorage.getItem("payments")) || [];
+};
+
+export const getHairstyles = () => {
+  return (
+    JSON.parse(localStorage.getItem("hairstyles")) || [
+      {
+        id: 1,
+        name: "Cornrows",
+        description:
+          "Neat, tight braids close to the scalp, perfect for a sleek look.",
+        image: "https://via.placeholder.com/300x200?text=Cornrows",
+      },
+      {
+        id: 2,
+        name: "Box Braids",
+        description:
+          "Individual braids for a versatile, low-maintenance style.",
+        image: "https://via.placeholder.com/300x200?text=Box+Braids",
+      },
+      {
+        id: 3,
+        name: "Weave-On",
+        description: "Sew-in extensions for added length and volume.",
+        image: "https://via.placeholder.com/300x200?text=Weave-On",
+      },
+      {
+        id: 4,
+        name: "Fulani Braids",
+        description: "Intricate braids with beads, inspired by Fulani culture.",
+        image: "https://via.placeholder.com/300x200?text=Fulani+Braids",
+      },
+      {
+        id: 5,
+        name: "Ghana Weaving",
+        description: "Elegant woven style for a bold look.",
+        image: "https://via.placeholder.com/300x200?text=Ghana+Weaving",
+      },
+    ]
+  );
+};
+
+export const saveHairstyles = (hairstyles) => {
+  localStorage.setItem("hairstyles", JSON.stringify(hairstyles));
 };
 
 export const sendMockNotification = (recipient, message) => {

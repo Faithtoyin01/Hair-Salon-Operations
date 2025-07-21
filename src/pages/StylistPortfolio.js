@@ -1,123 +1,187 @@
 import React from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import {
   Box,
   Typography,
   Card,
   CardContent,
-  List,
-  ListItem,
-  ListItemText,
+  CardMedia,
   Fade,
   Button,
+  Grid,
 } from "@mui/material";
 import { Person as PersonIcon } from "@mui/icons-material";
 
 const StylistPortfolio = ({ staff, feedback }) => {
   const { stylistId } = useParams();
-  const navigate = useNavigate();
+
+  if (!stylistId) {
+    return (
+      <Fade in timeout={1000}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 3,
+            mt: 4,
+            mx: { xs: 2, sm: 4 },
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 500,
+              color: "primary.main",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <PersonIcon /> Our Stylists
+          </Typography>
+          <Grid container spacing={2}>
+            {staff
+              .filter((s) => s.position === "Stylist")
+              .map((stylist) => (
+                <Grid item xs={12} sm={6} md={4} key={stylist.id}>
+                  <Card
+                    sx={{
+                      bgcolor: "background.paper",
+                      transition: "transform 0.3s",
+                      "&:hover": { transform: "scale(1.05)" },
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={
+                        stylist.image ||
+                        `https://via.placeholder.com/300x200?text=${stylist.name}`
+                      }
+                      alt={stylist.name}
+                    />
+                    <CardContent>
+                      <Typography variant="h6">{stylist.name}</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {stylist.specialty || "N/A"}
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        component={Link}
+                        to={`/stylist-portfolio/${stylist.id}`}
+                        sx={{ mt: 2 }}
+                      >
+                        View Profile
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+          </Grid>
+        </Box>
+      </Fade>
+    );
+  }
+
   const stylist = staff.find((s) => s.id === parseInt(stylistId));
 
   if (!stylist) {
-    return <Typography>Stylist not found</Typography>;
+    return (
+      <Fade in timeout={1000}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }}>
+          <Typography variant="h5" color="error.main">
+            Stylist not found
+          </Typography>
+        </Box>
+      </Fade>
+    );
   }
-
-  const mockPortfolio = [
-    {
-      id: 1,
-      before: "Before hair styling",
-      after: "After hair styling",
-      description: "Transformed curly hair into sleek straight look",
-    },
-    {
-      id: 2,
-      before: "Before coloring",
-      after: "After coloring",
-      description: "Vibrant red color with highlights",
-    },
-  ];
 
   return (
     <Fade in timeout={1000}>
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }}>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 500,
-            color: "primary.main",
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-          }}
-        >
-          <PersonIcon /> {stylist.name}'s Portfolio
-        </Typography>
-        <Card sx={{ bgcolor: "background.paper" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
+          mt: 4,
+          maxWidth: "800px",
+          mx: "auto",
+        }}
+      >
+        <Card sx={{ bgcolor: "background.paper", boxShadow: 3 }}>
+          <CardMedia
+            component="img"
+            height="400"
+            image={
+              stylist.image ||
+              `https://via.placeholder.com/800x400?text=${stylist.name}`
+            }
+            alt={stylist.name}
+            sx={{ objectFit: "cover" }}
+          />
           <CardContent
             sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
-            <Typography variant="h6">Profile</Typography>
-            <Typography>
-              Name: {stylist.firstName} {stylist.lastName}
+            <Typography
+              variant="h4"
+              sx={{ fontWeight: 500, color: "primary.main" }}
+            >
+              {stylist.name}
             </Typography>
-            <Typography>Specialty: {stylist.specialty}</Typography>
-            <Typography>Email: {stylist.email}</Typography>
+            <Typography variant="body1">
+              <strong>Specialty:</strong> {stylist.specialty || "N/A"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Experience:</strong> {stylist.experience || "N/A"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Bio:</strong> {stylist.bio || "No bio available"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Email:</strong> {stylist.email}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Phone:</strong> {stylist.phone}
+            </Typography>
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              Customer Feedback
+            </Typography>
+            {feedback.filter((f) => f.stylistId === stylist.id).length === 0 ? (
+              <Typography color="text.secondary">No feedback yet.</Typography>
+            ) : (
+              <Grid container spacing={2}>
+                {feedback
+                  .filter((f) => f.stylistId === stylist.id)
+                  .map((f) => (
+                    <Grid item xs={12} sm={6} key={f.id}>
+                      <Box
+                        sx={{
+                          bgcolor: "background.default",
+                          p: 2,
+                          borderRadius: 2,
+                          boxShadow: 1,
+                        }}
+                      >
+                        <Typography variant="body2">
+                          Rating: {f.rating}/5
+                        </Typography>
+                        <Typography variant="body2">{f.comments}</Typography>
+                      </Box>
+                    </Grid>
+                  ))}
+              </Grid>
+            )}
             <Button
               variant="contained"
               color="secondary"
-              onClick={() => navigate("/booking")}
+              component={Link}
+              to="/booking"
+              sx={{ mt: 2 }}
             >
-              Book with {stylist.firstName}
+              Book with {stylist.name}
             </Button>
-          </CardContent>
-        </Card>
-        <Card sx={{ bgcolor: "background.paper" }}>
-          <CardContent
-            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-          >
-            <Typography variant="h6">Portfolio</Typography>
-            <List>
-              {mockPortfolio.map((item) => (
-                <ListItem
-                  key={item.id}
-                  sx={{ bgcolor: "background.default", borderRadius: 2, mb: 1 }}
-                >
-                  <ListItemText
-                    primary={item.description}
-                    secondary={`Before: ${item.before} | After: ${item.after}`}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </CardContent>
-        </Card>
-        <Card sx={{ bgcolor: "background.paper" }}>
-          <CardContent
-            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-          >
-            <Typography variant="h6">Customer Reviews</Typography>
-            <List>
-              {feedback
-                .filter(
-                  (f) =>
-                    staff.find((s) => s.id === f.customerId)?.id === stylist.id
-                )
-                .map((f) => (
-                  <ListItem
-                    key={f.id}
-                    sx={{
-                      bgcolor: "background.default",
-                      borderRadius: 2,
-                      mb: 1,
-                    }}
-                  >
-                    <ListItemText
-                      primary={`Rating: ${f.rating}/5`}
-                      secondary={f.comments}
-                    />
-                  </ListItem>
-                ))}
-            </List>
           </CardContent>
         </Card>
       </Box>

@@ -19,14 +19,16 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  Input,
 } from "@mui/material";
 import {
   Event as EventIcon,
   Inventory as InventoryIcon,
   Assessment as ReportIcon,
   Add as AddIcon,
+  Style as StyleIcon,
 } from "@mui/icons-material";
-import { sendMockNotification } from "../utils";
+import { sendMockNotification, saveHairstyles } from "../utils";
 
 const AdminDashboard = ({
   appointments,
@@ -39,6 +41,8 @@ const AdminDashboard = ({
   setStaff,
   payments,
   feedback,
+  hairstyles,
+  setHairstyles,
 }) => {
   const [newService, setNewService] = useState({
     name: "",
@@ -58,7 +62,16 @@ const AdminDashboard = ({
     phone: "",
     email: "",
     specialty: "",
+    experience: "",
+    bio: "",
+    image: "",
   });
+  const [newHairstyle, setNewHairstyle] = useState({
+    name: "",
+    description: "",
+    image: "",
+  });
+  const [imagePreview, setImagePreview] = useState("");
 
   const handleAddService = () => {
     if (newService.name && newService.description && newService.price) {
@@ -123,9 +136,27 @@ const AdminDashboard = ({
         phone: "",
         email: "",
         specialty: "",
+        experience: "",
+        bio: "",
+        image: "",
       });
+      setImagePreview("");
     } else {
       alert("Please fill in all staff fields");
+    }
+  };
+
+  const handleAddHairstyle = () => {
+    if (newHairstyle.name && newHairstyle.description && newHairstyle.image) {
+      const newHairstyles = [
+        ...hairstyles,
+        { id: hairstyles.length + 1, ...newHairstyle },
+      ];
+      setHairstyles(newHairstyles);
+      saveHairstyles(newHairstyles);
+      setNewHairstyle({ name: "", description: "", image: "" });
+    } else {
+      alert("Please fill in all hairstyle fields");
     }
   };
 
@@ -144,6 +175,35 @@ const AdminDashboard = ({
       );
     }
   };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewStaff({ ...newStaff, image: reader.result });
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert("Please select a valid image file");
+    }
+  };
+
+  const specialtyOptions = [
+    "Braids & Weaves",
+    "Hair Coloring & Cuts",
+    "Cornrows",
+    "Natural Hair Styling",
+  ];
+
+  const hairstyleOptions = [
+    "Cornrows",
+    "Box Braids",
+    "Weave-On",
+    "Fulani Braids",
+    "Ghana Weaving",
+  ];
 
   return (
     <Fade in timeout={1000}>
@@ -209,7 +269,9 @@ const AdminDashboard = ({
                   sx={{ bgcolor: "background.default", borderRadius: 2, mb: 1 }}
                 >
                   <ListItemText
-                    primary={`${item.name} - Stock: ${item.stock}`}
+                    primary={`${item.name} - Stock: ${
+                      item.stock
+                    } (₦${item.price.toLocaleString()})`}
                     secondary={
                       item.stock < 5
                         ? "Low stock! Please reorder."
@@ -247,7 +309,7 @@ const AdminDashboard = ({
                 }
               />
               <TextField
-                label="Price"
+                label="Price (₦)"
                 type="number"
                 value={newProduct.price}
                 onChange={(e) =>
@@ -289,7 +351,9 @@ const AdminDashboard = ({
                   sx={{ bgcolor: "background.default", borderRadius: 2, mb: 1 }}
                 >
                   <ListItemText
-                    primary={`${service.name} - $${service.price}`}
+                    primary={`${
+                      service.name
+                    } - ₦${service.price.toLocaleString()}`}
                     secondary={service.description}
                   />
                 </ListItem>
@@ -311,7 +375,7 @@ const AdminDashboard = ({
                 }
               />
               <TextField
-                label="Price"
+                label="Price (₦)"
                 type="number"
                 value={newService.price}
                 onChange={(e) =>
@@ -346,9 +410,7 @@ const AdminDashboard = ({
                   sx={{ bgcolor: "background.default", borderRadius: 2, mb: 1 }}
                 >
                   <ListItemText
-                    primary={`${s.name || `${s.firstName} ${s.lastName}`} - ${
-                      s.position
-                    }`}
+                    primary={`${s.name} - ${s.position}`}
                     secondary={`Email: ${s.email} | Specialty: ${
                       s.specialty || "N/A"
                     }`}
@@ -398,13 +460,60 @@ const AdminDashboard = ({
                 }
               />
               {newStaff.position === "Stylist" && (
-                <TextField
-                  label="Specialty"
-                  value={newStaff.specialty}
-                  onChange={(e) =>
-                    setNewStaff({ ...newStaff, specialty: e.target.value })
-                  }
-                />
+                <>
+                  <FormControl fullWidth>
+                    <InputLabel>Specialty</InputLabel>
+                    <Select
+                      value={newStaff.specialty}
+                      onChange={(e) =>
+                        setNewStaff({ ...newStaff, specialty: e.target.value })
+                      }
+                    >
+                      {specialtyOptions.map((option) => (
+                        <MenuItem key={option} value={option}>
+                          {option}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    label="Experience (Years)"
+                    type="number"
+                    value={newStaff.experience}
+                    onChange={(e) =>
+                      setNewStaff({ ...newStaff, experience: e.target.value })
+                    }
+                  />
+                  <TextField
+                    label="Bio"
+                    multiline
+                    rows={4}
+                    value={newStaff.bio}
+                    onChange={(e) =>
+                      setNewStaff({ ...newStaff, bio: e.target.value })
+                    }
+                  />
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    sx={{ mt: 1 }}
+                  />
+                  {imagePreview && (
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="body2">Image Preview:</Typography>
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        style={{
+                          maxWidth: "100px",
+                          maxHeight: "100px",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    </Box>
+                  )}
+                </>
               )}
               <Button
                 variant="contained"
@@ -425,12 +534,79 @@ const AdminDashboard = ({
               variant="h6"
               sx={{ display: "flex", alignItems: "center", gap: 1 }}
             >
+              <StyleIcon /> Hairstyle Management
+            </Typography>
+            <List>
+              {hairstyles.map((h) => (
+                <ListItem
+                  key={h.id}
+                  sx={{ bgcolor: "background.default", borderRadius: 2, mb: 1 }}
+                >
+                  <ListItemText primary={h.name} secondary={h.description} />
+                </ListItem>
+              ))}
+            </List>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>Hairstyle</InputLabel>
+                <Select
+                  value={newHairstyle.name}
+                  onChange={(e) =>
+                    setNewHairstyle({ ...newHairstyle, name: e.target.value })
+                  }
+                >
+                  {hairstyleOptions.map((option) => (
+                    <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                label="Description"
+                multiline
+                rows={2}
+                value={newHairstyle.description}
+                onChange={(e) =>
+                  setNewHairstyle({
+                    ...newHairstyle,
+                    description: e.target.value,
+                  })
+                }
+              />
+              <TextField
+                label="Image URL"
+                value={newHairstyle.image}
+                onChange={(e) =>
+                  setNewHairstyle({ ...newHairstyle, image: e.target.value })
+                }
+                placeholder="e.g., https://example.com/hairstyle.jpg"
+              />
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleAddHairstyle}
+                startIcon={<AddIcon />}
+              >
+                Add Hairstyle
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+        <Card sx={{ bgcolor: "background.paper" }}>
+          <CardContent
+            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+          >
+            <Typography
+              variant="h6"
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
               <ReportIcon /> Reports
             </Typography>
             <Typography>Total Appointments: {appointments.length}</Typography>
             <Typography>
-              Total Revenue: $
-              {payments.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}
+              Total Revenue: ₦
+              {payments.reduce((sum, p) => sum + p.amount, 0).toLocaleString()}
             </Typography>
             <Typography>
               Low Stock Items:{" "}

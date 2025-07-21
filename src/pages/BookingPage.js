@@ -33,6 +33,10 @@ const BookingPage = ({
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [otp, setOtp] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = () => {
@@ -41,6 +45,13 @@ const BookingPage = ({
       const selectedStylist = staff.find((s) => s.name === stylist);
       if (!selectedService || !selectedStylist) {
         alert("Invalid service or stylist selected");
+        return;
+      }
+      if (
+        paymentMethod !== "cash" &&
+        (!cardNumber || !expiryDate || !cvv || !otp)
+      ) {
+        alert("Please fill in all payment details");
         return;
       }
       const newAppointment = {
@@ -66,8 +77,9 @@ const BookingPage = ({
       ]);
       sendMockNotification(
         user.email,
-        `Appointment booked for ${service} on ${date} at ${time}`
+        `Appointment booked for ${service} on ${date} at ${time}. Payment of ₦${selectedService.price} confirmed.`
       );
+      alert("Payment processed successfully!");
       navigate("/customer-dashboard");
     } else {
       alert("Please fill in all fields");
@@ -110,7 +122,7 @@ const BookingPage = ({
               >
                 {services.map((s) => (
                   <MenuItem key={s.id} value={s.name}>
-                    {s.name} (${s.price})
+                    {s.name} (₦{s.price.toLocaleString()})
                   </MenuItem>
                 ))}
               </Select>
@@ -152,11 +164,44 @@ const BookingPage = ({
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value)}
               >
-                <MenuItem value="credit">Credit Card</MenuItem>
-                <MenuItem value="debit">Debit Card</MenuItem>
-                <MenuItem value="mobile">Mobile Payment</MenuItem>
+                <MenuItem value="verve">Verve Card</MenuItem>
+                <MenuItem value="visa">Visa Card</MenuItem>
+                <MenuItem value="mastercard">Mastercard</MenuItem>
+                <MenuItem value="cash">Cash</MenuItem>
               </Select>
             </FormControl>
+            {paymentMethod && paymentMethod !== "cash" && (
+              <>
+                <TextField
+                  fullWidth
+                  label="Card Number"
+                  value={cardNumber}
+                  onChange={(e) => setCardNumber(e.target.value)}
+                  inputProps={{ maxLength: 16 }}
+                />
+                <TextField
+                  fullWidth
+                  label="Expiry Date (MM/YY)"
+                  value={expiryDate}
+                  onChange={(e) => setExpiryDate(e.target.value)}
+                  inputProps={{ maxLength: 5 }}
+                />
+                <TextField
+                  fullWidth
+                  label="CVV"
+                  value={cvv}
+                  onChange={(e) => setCvv(e.target.value)}
+                  inputProps={{ maxLength: 3 }}
+                />
+                <TextField
+                  fullWidth
+                  label="OTP"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  inputProps={{ maxLength: 6 }}
+                />
+              </>
+            )}
             <Button
               fullWidth
               variant="contained"
