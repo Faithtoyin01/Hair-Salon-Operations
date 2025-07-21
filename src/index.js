@@ -8,9 +8,9 @@ import App from "./App";
 const theme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#6B4E71" }, // Deep purple for elegance
-    secondary: { main: "#F4A261" }, // Warm orange for accents
-    accent: { main: "#E76F51" }, // Coral for highlights
+    primary: { main: "#6B4E71" },
+    secondary: { main: "#F4A261" },
+    accent: { main: "#E76F51" },
     background: { default: "#F9F4F3", paper: "#FFFFFF" },
   },
   shape: { borderRadius: 12 },

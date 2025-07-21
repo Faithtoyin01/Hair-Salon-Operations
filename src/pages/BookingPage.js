@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -13,29 +13,54 @@ import {
   CardContent,
   Fade,
 } from "@mui/material";
-import { Event as EventIcon } from "@mui/icons-material";
+import {
+  Event as EventIcon,
+  Payment as PaymentIcon,
+} from "@mui/icons-material";
+import { sendMockNotification } from "../utils";
 
-const mockServices = [
-  { id: 1, name: "Haircut", price: 30, duration: "30 mins" },
-  { id: 2, name: "Hair Coloring", price: 60, duration: "60 mins" },
-  { id: 3, name: "Hair Treatment", price: 50, duration: "45 mins" },
-];
-
-const mockStylists = [
-  { id: 1, name: "Jane Doe", specialty: "Haircut & Styling" },
-  { id: 2, name: "John Smith", specialty: "Coloring & Treatments" },
-];
-
-const BookingPage = ({ bookAppointment }) => {
+const BookingPage = ({
+  user,
+  appointments,
+  setAppointments,
+  services,
+  staff,
+  payments,
+  setPayments,
+}) => {
   const [service, setService] = useState("");
   const [stylist, setStylist] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = () => {
-    if (service && stylist && date && time) {
-      bookAppointment({ service, stylist, date, time });
+    if (service && stylist && date && time && paymentMethod) {
+      const newAppointment = {
+        id: appointments.length + 1,
+        customerId: user.id,
+        stylistId: staff.find((s) => s.name === stylist).id,
+        serviceId: services.find((s) => s.name === service).id,
+        dateTime: `${date}T${time}`,
+        status: "Booked",
+        paymentStatus: "Paid",
+      };
+      setAppointments([...appointments, newAppointment]);
+      setPayments([
+        ...payments,
+        {
+          id: payments.length + 1,
+          customerId: user.id,
+          amount: services.find((s) => s.name === service).price,
+          paymentMethod,
+          date: new Date().toISOString(),
+        },
+      ]);
+      sendMockNotification(
+        user.email,
+        `Appointment booked for ${service} on ${date} at ${time}`
+      );
       navigate("/customer-dashboard");
     } else {
       alert("Please fill in all fields");
@@ -76,7 +101,7 @@ const BookingPage = ({ bookAppointment }) => {
                 value={service}
                 onChange={(e) => setService(e.target.value)}
               >
-                {mockServices.map((s) => (
+                {services.map((s) => (
                   <MenuItem key={s.id} value={s.name}>
                     {s.name} (${s.price})
                   </MenuItem>
@@ -89,11 +114,13 @@ const BookingPage = ({ bookAppointment }) => {
                 value={stylist}
                 onChange={(e) => setStylist(e.target.value)}
               >
-                {mockStylists.map((s) => (
-                  <MenuItem key={s.id} value={s.name}>
-                    {s.name} - {s.specialty}
-                  </MenuItem>
-                ))}
+                {staff
+                  .filter((s) => s.position === "Stylist")
+                  .map((s) => (
+                    <MenuItem key={s.id} value={s.name}>
+                      {s.name} - {s.specialty}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
             <TextField
@@ -112,14 +139,25 @@ const BookingPage = ({ bookAppointment }) => {
               onChange={(e) => setTime(e.target.value)}
               InputLabelProps={{ shrink: true }}
             />
+            <FormControl fullWidth>
+              <InputLabel>Payment Method</InputLabel>
+              <Select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              >
+                <MenuItem value="credit">Credit Card</MenuItem>
+                <MenuItem value="debit">Debit Card</MenuItem>
+                <MenuItem value="mobile">Mobile Payment</MenuItem>
+              </Select>
+            </FormControl>
             <Button
               fullWidth
               variant="contained"
               color="secondary"
               onClick={handleSubmit}
-              startIcon={<EventIcon />}
+              startIcon={<PaymentIcon />}
             >
-              Book Appointment
+              Book and Pay
             </Button>
           </CardContent>
         </Card>

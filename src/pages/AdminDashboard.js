@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -9,98 +9,435 @@ import {
   ListItem,
   ListItemText,
   Fade,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
 } from "@mui/material";
 import {
   Event as EventIcon,
   Inventory as InventoryIcon,
   Assessment as ReportIcon,
+  Add as AddIcon,
+  Edit as EditIcon,
 } from "@mui/icons-material";
+import { sendMockNotification } from "../utils";
 
-const AdminDashboard = ({ appointments, inventory, updateInventory }) => (
-  <Fade in timeout={1000}>
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }}>
-      <Typography variant="h5" sx={{ fontWeight: 500, color: "primary.main" }}>
-        Admin Dashboard
-      </Typography>
-      <Card sx={{ bgcolor: "background.paper" }}>
-        <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Typography
-            variant="h6"
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+const AdminDashboard = ({
+  appointments,
+  setAppointments,
+  inventory,
+  setInventory,
+  services,
+  setServices,
+  staff,
+  setStaff,
+  payments,
+  feedback,
+}) => {
+  const [newService, setNewService] = useState({
+    name: "",
+    description: "",
+    price: "",
+  });
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    stock: "",
+    price: "",
+    supplier: "",
+  });
+  const [newStaff, setNewStaff] = useState({
+    firstName: "",
+    lastName: "",
+    position: "",
+    phone: "",
+    email: "",
+    specialty: "",
+  });
+
+  const handleAddService = () => {
+    if (newService.name && newService.description && newService.price) {
+      setServices([
+        ...services,
+        {
+          id: services.length + 1,
+          ...newService,
+          price: parseFloat(newService.price),
+        },
+      ]);
+      setNewService({ name: "", description: "", price: "" });
+    } else {
+      alert("Please fill in all service fields");
+    }
+  };
+
+  const handleAddProduct = () => {
+    if (newProduct.name && newProduct.stock && newProduct.price) {
+      setInventory([
+        ...inventory,
+        {
+          id: inventory.length + 1,
+          ...newProduct,
+          stock: parseInt(newProduct.stock),
+          price: parseFloat(newProduct.price),
+        },
+      ]);
+      if (parseInt(newProduct.stock) < 5) {
+        sendMockNotification(
+          "admin@example.com",
+          `Low stock alert: ${newProduct.name} has ${newProduct.stock} units`
+        );
+      }
+      setNewProduct({ name: "", stock: "", price: "", supplier: "" });
+    } else {
+      alert("Please fill in all product fields");
+    }
+  };
+
+  const handleAddStaff = () => {
+    if (
+      newStaff.firstName &&
+      newStaff.lastName &&
+      newStaff.position &&
+      newStaff.phone &&
+      newStaff.email
+    ) {
+      setStaff([...staff, { id: staff.length + 1, ...newStaff }]);
+      setNewStaff({
+        firstName: "",
+        lastName: "",
+        position: "",
+        phone: "",
+        email: "",
+        specialty: "",
+      });
+    } else {
+      alert("Please fill in all staff fields");
+    }
+  };
+
+  const handleUpdateInventory = (productId, quantity) => {
+    const updatedInventory = inventory.map((item) =>
+      item.id === productId ? { ...item, stock: item.stock - quantity } : item
+    );
+    setInventory(updatedInventory);
+    const lowStock = updatedInventory.find(
+      (item) => item.id === productId && item.stock < 5
+    );
+    if (lowStock) {
+      sendMockNotification(
+        "admin@example.com",
+        `Low stock alert: ${lowStock.name} has ${lowStock.stock} units`
+      );
+    }
+  };
+
+  return (
+    <Fade in timeout={1000}>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }}>
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: 500, color: "primary.main" }}
+        >
+          Admin Dashboard
+        </Typography>
+        <Card sx={{ bgcolor: "background.paper" }}>
+          <CardContent
+            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
-            <EventIcon /> Appointments
-          </Typography>
-          {appointments.length === 0 ? (
-            <Typography color="text.secondary">
-              No appointments booked.
+            <Typography
+              variant="h6"
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
+              <EventIcon /> Appointments
             </Typography>
-          ) : (
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Service</TableCell>
+                  <TableCell>Stylist</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {appointments.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell>
+                      {services.find((s) => s.id === a.serviceId)?.name}
+                    </TableCell>
+                    <TableCell>
+                      {staff.find((s) => s.id === a.stylistId)?.name}
+                    </TableCell>
+                    <TableCell>{a.dateTime.split("T")[0]}</TableCell>
+                    <TableCell>{a.status}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+        <Card sx={{ bgcolor: "background.paper" }}>
+          <CardContent
+            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+          >
+            <Typography
+              variant="h6"
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
+              <InventoryIcon /> Inventory Management
+            </Typography>
             <List>
-              {appointments.map((appointment) => (
+              {inventory.map((item) => (
                 <ListItem
-                  key={appointment.id}
+                  key={item.id}
                   sx={{ bgcolor: "background.default", borderRadius: 2, mb: 1 }}
                 >
                   <ListItemText
-                    primary={`${appointment.service} with ${appointment.stylist}`}
-                    secondary={`Date: ${appointment.date} | Time: ${appointment.time} | Status: ${appointment.status}`}
+                    primary={`${item.name} - Stock: ${item.stock}`}
+                    secondary={
+                      item.stock < 5
+                        ? "Low stock! Please reorder."
+                        : `Supplier: ${item.supplier || "N/A"}`
+                    }
+                    secondaryTypographyProps={{
+                      color: item.stock < 5 ? "error.main" : "text.secondary",
+                    }}
+                  />
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => handleUpdateInventory(item.id, 1)}
+                    disabled={item.stock <= 0}
+                  >
+                    Use 1
+                  </Button>
+                </ListItem>
+              ))}
+            </List>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <TextField
+                label="Product Name"
+                value={newProduct.name}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, name: e.target.value })
+                }
+              />
+              <TextField
+                label="Stock Level"
+                type="number"
+                value={newProduct.stock}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, stock: e.target.value })
+                }
+              />
+              <TextField
+                label="Price"
+                type="number"
+                value={newProduct.price}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, price: e.target.value })
+                }
+              />
+              <TextField
+                label="Supplier"
+                value={newProduct.supplier}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, supplier: e.target.value })
+                }
+              />
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleAddProduct}
+                startIcon={<AddIcon />}
+              >
+                Add Product
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+        <Card sx={{ bgcolor: "background.paper" }}>
+          <CardContent
+            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+          >
+            <Typography
+              variant="h6"
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
+              <AddIcon /> Service Management
+            </Typography>
+            <List>
+              {services.map((service) => (
+                <ListItem
+                  key={service.id}
+                  sx={{ bgcolor: "background.default", borderRadius: 2, mb: 1 }}
+                >
+                  <ListItemText
+                    primary={`${service.name} - $${service.price}`}
+                    secondary={service.description}
                   />
                 </ListItem>
               ))}
             </List>
-          )}
-        </CardContent>
-      </Card>
-      <Card sx={{ bgcolor: "background.paper" }}>
-        <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Typography
-            variant="h6"
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
-          >
-            <InventoryIcon /> Inventory Management
-          </Typography>
-          <List>
-            {inventory.map((item) => (
-              <ListItem
-                key={item.id}
-                sx={{ bgcolor: "background.default", borderRadius: 2, mb: 1 }}
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <TextField
+                label="Service Name"
+                value={newService.name}
+                onChange={(e) =>
+                  setNewService({ ...newService, name: e.target.value })
+                }
+              />
+              <TextField
+                label="Description"
+                value={newService.description}
+                onChange={(e) =>
+                  setNewService({ ...newService, description: e.target.value })
+                }
+              />
+              <TextField
+                label="Price"
+                type="number"
+                value={newService.price}
+                onChange={(e) =>
+                  setNewService({ ...newService, price: e.target.value })
+                }
+              />
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleAddService}
+                startIcon={<AddIcon />}
               >
-                <ListItemText
-                  primary={`${item.name} - Stock: ${item.stock}`}
-                  secondary={item.stock < 5 ? "Low stock! Please reorder." : ""}
-                  secondaryTypographyProps={{
-                    color: item.stock < 5 ? "error.main" : "text.secondary",
-                  }}
-                />
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => updateInventory(item.id, 1)}
-                  disabled={item.stock <= 0}
-                >
-                  Use 1
-                </Button>
-              </ListItem>
-            ))}
-          </List>
-        </CardContent>
-      </Card>
-      <Card sx={{ bgcolor: "background.paper" }}>
-        <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Typography
-            variant="h6"
-            sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                Add Service
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+        <Card sx={{ bgcolor: "background.paper" }}>
+          <CardContent
+            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
           >
-            <ReportIcon /> Reports
-          </Typography>
-          <Typography>Total Appointments: {appointments.length}</Typography>
-          <Typography>
-            Low Stock Items: {inventory.filter((item) => item.stock < 5).length}
-          </Typography>
-        </CardContent>
-      </Card>
-    </Box>
-  </Fade>
-);
+            <Typography
+              variant="h6"
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
+              <AddIcon /> Staff Management
+            </Typography>
+            <List>
+              {staff.map((s) => (
+                <ListItem
+                  key={s.id}
+                  sx={{ bgcolor: "background.default", borderRadius: 2, mb: 1 }}
+                >
+                  <ListItemText
+                    primary={`${s.firstName} ${s.lastName} - ${s.position}`}
+                    secondary={`Email: ${s.email} | Specialty: ${
+                      s.specialty || "N/A"
+                    }`}
+                  />
+                </ListItem>
+              ))}
+            </List>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <TextField
+                label="First Name"
+                value={newStaff.firstName}
+                onChange={(e) =>
+                  setNewStaff({ ...newStaff, firstName: e.target.value })
+                }
+              />
+              <TextField
+                label="Last Name"
+                value={newStaff.lastName}
+                onChange={(e) =>
+                  setNewStaff({ ...newStaff, lastName: e.target.value })
+                }
+              />
+              <FormControl fullWidth>
+                <InputLabel>Position</InputLabel>
+                <Select
+                  value={newStaff.position}
+                  onChange={(e) =>
+                    setNewStaff({ ...newStaff, position: e.target.value })
+                  }
+                >
+                  <MenuItem value="Stylist">Stylist</MenuItem>
+                  <MenuItem value="Receptionist">Receptionist</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                label="Phone Number"
+                value={newStaff.phone}
+                onChange={(e) =>
+                  setNewStaff({ ...newStaff, phone: e.target.value })
+                }
+              />
+              <TextField
+                label="Email"
+                value={newStaff.email}
+                onChange={(e) =>
+                  setNewStaff({ ...newStaff, email: e.target.value })
+                }
+              />
+              {newStaff.position === "Stylist" && (
+                <TextField
+                  label="Specialty"
+                  value={newStaff.specialty}
+                  onChange={(e) =>
+                    setNewStaff({ ...newStaff, specialty: e.target.value })
+                  }
+                />
+              )}
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleAddStaff}
+                startIcon={<AddIcon />}
+              >
+                Add Staff
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+        <Card sx={{ bgcolor: "background.paper" }}>
+          <CardContent
+            sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+          >
+            <Typography
+              variant="h6"
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
+              <ReportIcon /> Reports
+            </Typography>
+            <Typography>Total Appointments: {appointments.length}</Typography>
+            <Typography>
+              Total Revenue: $
+              {payments.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}
+            </Typography>
+            <Typography>
+              Low Stock Items:{" "}
+              {inventory.filter((item) => item.stock < 5).length}
+            </Typography>
+            <Typography>
+              Average Customer Rating:{" "}
+              {(
+                feedback.reduce((sum, f) => sum + f.rating, 0) /
+                (feedback.length || 1)
+              ).toFixed(1)}{" "}
+              / 5
+            </Typography>
+          </CardContent>
+        </Card>
+      </Box>
+    </Fade>
+  );
+};
 
 export default AdminDashboard;

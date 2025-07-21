@@ -11,6 +11,9 @@ import {
   List,
   ListItem,
   ListItemText,
+  Menu,
+  MenuItem,
+  Avatar,
 } from "@mui/material";
 import {
   Home as HomeIcon,
@@ -19,14 +22,21 @@ import {
   Login as LoginIcon,
   Logout as LogoutIcon,
   Menu as MenuIcon,
+  SwitchAccount as SwitchAccountIcon,
 } from "@mui/icons-material";
 
-const AppBar = ({ user, setUser }) => {
+const AppBar = ({ user, users, handleLogout, handleSwitchUser }) => {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+  const handleSwitch = (userId) => {
+    handleSwitchUser(userId);
+    handleMenuClose();
+    navigate(userId === user?.id ? `/${user.role}-dashboard` : "/");
   };
 
   const menuItems = [
@@ -35,19 +45,25 @@ const AppBar = ({ user, setUser }) => {
       text: "Book Appointment",
       icon: <EventIcon />,
       path: "/booking",
-      show: user === "customer",
+      show: user?.role === "customer",
     },
     {
       text: "Dashboard",
       icon: <DashboardIcon />,
       path: "/customer-dashboard",
-      show: user === "customer",
+      show: user?.role === "customer",
     },
     {
       text: "Admin Dashboard",
       icon: <DashboardIcon />,
       path: "/admin-dashboard",
-      show: user === "admin",
+      show: user?.role === "admin",
+    },
+    {
+      text: "Queue Management",
+      icon: <EventIcon />,
+      path: "/queue-management",
+      show: user?.role === "stylist" || user?.role === "admin",
     },
     { text: "Login", icon: <LoginIcon />, path: "/login", show: !user },
     {
@@ -55,14 +71,14 @@ const AppBar = ({ user, setUser }) => {
       icon: <LogoutIcon />,
       path: "/",
       show: user,
-      onClick: () => setUser(null),
+      onClick: handleLogout,
     },
   ];
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ p: 2 }}>
       <Typography variant="h6" sx={{ mb: 2 }}>
-        Hair Salon
+        Glamour Hair Salon
       </Typography>
       <List>
         {menuItems.map(
@@ -99,34 +115,72 @@ const AppBar = ({ user, setUser }) => {
               gap: 1,
             }}
           >
-            <EventIcon /> Hair Salon
+            <EventIcon /> Glamour Hair Salon
           </Typography>
-          <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 2 }}>
-            {menuItems.map(
-              (item) =>
-                item.show && (
-                  <Button
-                    key={item.text}
-                    color="inherit"
-                    startIcon={item.icon}
-                    onClick={() => {
-                      item.onClick ? item.onClick() : navigate(item.path);
-                    }}
-                    sx={{ textTransform: "none", fontWeight: 500 }}
-                  >
-                    {item.text}
-                  </Button>
-                )
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            {user && (
+              <>
+                <Button
+                  color="inherit"
+                  startIcon={<SwitchAccountIcon />}
+                  onClick={handleMenuOpen}
+                  sx={{ textTransform: "none", fontWeight: 500 }}
+                >
+                  {user.username}
+                </Button>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleMenuClose}
+                >
+                  {users.map((u) => (
+                    <MenuItem key={u.id} onClick={() => handleSwitch(u.id)}>
+                      <Avatar
+                        sx={{
+                          mr: 1,
+                          bgcolor:
+                            u.role === "admin"
+                              ? "primary.main"
+                              : u.role === "stylist"
+                              ? "secondary.main"
+                              : "accent.main",
+                        }}
+                      >
+                        {u.username[0].toUpperCase()}
+                      </Avatar>
+                      {u.username} ({u.role})
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </>
             )}
+            <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 2 }}>
+              {menuItems.map(
+                (item) =>
+                  item.show && (
+                    <Button
+                      key={item.text}
+                      color="inherit"
+                      startIcon={item.icon}
+                      onClick={() => {
+                        item.onClick ? item.onClick() : navigate(item.path);
+                      }}
+                      sx={{ textTransform: "none", fontWeight: 500 }}
+                    >
+                      {item.text}
+                    </Button>
+                  )
+              )}
+            </Box>
+            <IconButton
+              color="inherit"
+              edge="end"
+              onClick={handleDrawerToggle}
+              sx={{ display: { sm: "none" } }}
+            >
+              <MenuIcon />
+            </IconButton>
           </Box>
-          <IconButton
-            color="inherit"
-            edge="end"
-            onClick={handleDrawerToggle}
-            sx={{ display: { sm: "none" } }}
-          >
-            <MenuIcon />
-          </IconButton>
         </Toolbar>
       </MUIAppBar>
       <Drawer

@@ -1,20 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Box,
-  Typography,
-  Button,
-  Card,
-  CardContent,
-  Fade,
-} from "@mui/material";
-import {
-  Event as EventIcon,
-  AdminPanelSettings as AdminIcon,
-  Person as CustomerIcon,
-} from "@mui/icons-material";
+import { Box, Typography, Fade } from "@mui/material";
+import { Event as EventIcon } from "@mui/icons-material";
 
-const HomePage = ({ handleLogin }) => {
+const HomePage = () => {
   const navigate = useNavigate();
 
   return (
@@ -49,80 +38,20 @@ const HomePage = ({ handleLogin }) => {
           Discover premium hair care services, book appointments with ease, and
           let our expert stylists transform your look.
         </Typography>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 2,
-            maxWidth: "800px",
-            flexWrap: "wrap",
-            justifyContent: "center",
-          }}
+        <Typography
+          variant="body2"
+          sx={{ textAlign: "center", color: "accent.main" }}
         >
-          <Card sx={{ maxWidth: 250, width: "100%" }}>
-            <CardContent
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <CustomerIcon sx={{ fontSize: 40, color: "secondary.main" }} />
-              <Typography variant="h6">Customer Login</Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => handleLogin("customer")}
-                sx={{ width: "100%" }}
-              >
-                Login as Customer
-              </Button>
-            </CardContent>
-          </Card>
-          <Card sx={{ maxWidth: 250, width: "100%" }}>
-            <CardContent
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <AdminIcon sx={{ fontSize: 40, color: "secondary.main" }} />
-              <Typography variant="h6">Admin Login</Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => handleLogin("admin")}
-                sx={{ width: "100%" }}
-              >
-                Login as Admin
-              </Button>
-            </CardContent>
-          </Card>
-          <Card sx={{ maxWidth: 250, width: "100%" }}>
-            <CardContent
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <EventIcon sx={{ fontSize: 40, color: "secondary.main" }} />
-              <Typography variant="h6">Book Now</Typography>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={() => navigate("/booking")}
-                sx={{ width: "100%" }}
-              >
-                Book Appointment
-              </Button>
-            </CardContent>
-          </Card>
-        </Box>
+          Please{" "}
+          <Typography
+            component="span"
+            sx={{ cursor: "pointer", textDecoration: "underline" }}
+            onClick={() => navigate("/login")}
+          >
+            log in
+          </Typography>{" "}
+          to continue.
+        </Typography>
       </Box>
     </Fade>
   );
