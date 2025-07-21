@@ -19,7 +19,7 @@ import {
   Login as LoginIcon,
   PersonAdd as SignupIcon,
 } from "@mui/icons-material";
-import { saveUser } from "../utils";
+import { saveUser } from "./utils";
 
 const LoginPage = ({ setUser, users, setUsers }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -35,7 +35,8 @@ const LoginPage = ({ setUser, users, setUsers }) => {
 
   const handleLogin = () => {
     const user = users.find(
-      (u) => u.username === username && u.password === password
+      (u) =>
+        u.username === username && u.password === password && u.role === role
     );
     if (user) {
       setUser(user);
@@ -48,7 +49,7 @@ const LoginPage = ({ setUser, users, setUsers }) => {
           : "/customer-dashboard"
       );
     } else {
-      alert("Invalid credentials");
+      alert("Invalid credentials or role");
     }
   };
 
@@ -149,6 +150,17 @@ const LoginPage = ({ setUser, users, setUsers }) => {
                   onChange={(e) => setPassword(e.target.value)}
                   variant="outlined"
                 />
+                <FormControl fullWidth>
+                  <InputLabel>Role</InputLabel>
+                  <Select
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                  >
+                    <MenuItem value="customer">Customer</MenuItem>
+                    <MenuItem value="stylist">Stylist</MenuItem>
+                    <MenuItem value="admin">Admin</MenuItem>
+                  </Select>
+                </FormControl>
                 <Button
                   fullWidth
                   variant="contained"
