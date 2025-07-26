@@ -9,12 +9,15 @@ import {
   ListItemText,
   Fade,
   Button,
+  ToggleButton,
+  ToggleButtonGroup,
 } from "@mui/material";
 import {
   Event as EventIcon,
   CheckCircle as CheckIcon,
+  Schedule as ScheduleIcon,
 } from "@mui/icons-material";
-import { sendMockNotification } from "../utils";
+import { sendMockNotification, getCurrentUser } from "../utils";
 
 const QueueManagement = ({
   appointments,
@@ -22,46 +25,36 @@ const QueueManagement = ({
   services,
   staff,
 }) => {
-  const [waitTime, setWaitTime] = useState(0);
+  const stylist = getCurrentUser(); // get logged in stylist
+  const [viewToday, setViewToday] = useState(true);
 
-  const handleMarkReady = (appointmentId) => {
-    const updatedAppointments = appointments.map((a) =>
-      a.id === appointmentId ? { ...a, status: "Ready" } : a
+  const todayDate = new Date().toISOString().split("T")[0];
+
+  const stylistAppointments = appointments
+    .filter(
+      (a) =>
+        a.stylistId &&
+        stylist.name === staff.find((s) => s.id === a.stylistId)?.name
+    )
+    .filter((a) =>
+      viewToday
+        ? a.dateTime.split("T")[0] === todayDate && a.status !== "Done"
+        : a.status !== "Done"
+    )
+    .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+
+  const handleMarkDone = (appointmentId) => {
+    const updated = appointments.map((a) =>
+      a.id === appointmentId ? { ...a, status: "Done" } : a
     );
-    setAppointments(updatedAppointments);
+    setAppointments(updated);
+
     const appointment = appointments.find((a) => a.id === appointmentId);
     sendMockNotification(
       "customer@example.com",
-      `Your appointment with ${
-        staff.find((s) => s.id === appointment.stylistId)?.name ||
-        "Unknown Stylist"
-      } is ready!`
+      `✅ Your appointment with ${stylist.name} is marked as done!`
     );
   };
-
-  const calculateWaitTime = () => {
-    const now = new Date();
-    const pending = appointments.filter((a) => a.status === "Booked").length;
-    setWaitTime(pending * 15); // Assume 15 minutes per appointment
-  };
-
-  if (!services || !staff) {
-    return (
-      <Fade in timeout={1000}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }}>
-          <Typography
-            variant="h5"
-            sx={{ fontWeight: 500, color: "primary.main" }}
-          >
-            Queue Management
-          </Typography>
-          <Typography color="error.main">
-            Error: Services or staff data is not available.
-          </Typography>
-        </Box>
-      </Fade>
-    );
-  }
 
   return (
     <Fade in timeout={1000}>
@@ -70,8 +63,23 @@ const QueueManagement = ({
           variant="h5"
           sx={{ fontWeight: 500, color: "primary.main" }}
         >
-          Queue Management
+          Queue for {stylist.name}
         </Typography>
+
+        <ToggleButtonGroup
+          value={viewToday ? "today" : "all"}
+          exclusive
+          onChange={(e, val) => setViewToday(val === "today")}
+          sx={{ mb: 2 }}
+        >
+          <ToggleButton value="today" aria-label="Today's Appointments">
+            Today’s Appointments
+          </ToggleButton>
+          <ToggleButton value="all" aria-label="All Appointments">
+            All Upcoming
+          </ToggleButton>
+        </ToggleButtonGroup>
+
         <Card sx={{ bgcolor: "background.paper" }}>
           <CardContent
             sx={{ display: "flex", flexDirection: "column", gap: 2 }}
@@ -80,51 +88,46 @@ const QueueManagement = ({
               variant="h6"
               sx={{ display: "flex", alignItems: "center", gap: 1 }}
             >
-              <EventIcon /> Current Queue
+              <EventIcon /> Appointments
             </Typography>
-            <Typography>Estimated Wait Time: {waitTime} minutes</Typography>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={calculateWaitTime}
-            >
-              Refresh Wait Time
-            </Button>
-            <List>
-              {appointments
-                .filter((a) => a.status === "Booked")
-                .map((appointment) => (
+
+            {stylistAppointments.length === 0 ? (
+              <Typography>No appointments found.</Typography>
+            ) : (
+              <List>
+                {stylistAppointments.map((a) => (
                   <ListItem
-                    key={appointment.id}
+                    key={a.id}
                     sx={{
                       bgcolor: "background.default",
                       borderRadius: 2,
                       mb: 1,
+                      flexDirection: "column",
+                      alignItems: "flex-start",
                     }}
                   >
                     <ListItemText
-                      primary={`Customer ID: ${
-                        appointment.customerId
-                      } | Service: ${
-                        services.find((s) => s.id === appointment.serviceId)
-                          ?.name || "Unknown Service"
+                      primary={`Service: ${
+                        services.find((s) => s.id === a.serviceId)?.name ||
+                        "Unknown"
                       }`}
-                      secondary={`Stylist: ${
-                        staff.find((s) => s.id === appointment.stylistId)
-                          ?.name || "Unknown Stylist"
-                      } | Time: ${appointment.dateTime.split("T")[1]}`}
+                      secondary={`Customer: ${a.customerId} | Time: ${
+                        a.dateTime.split("T")[1]
+                      } | Status: ${a.status}`}
                     />
                     <Button
                       variant="contained"
                       color="secondary"
-                      onClick={() => handleMarkReady(appointment.id)}
                       startIcon={<CheckIcon />}
+                      onClick={() => handleMarkDone(a.id)}
+                      sx={{ mt: 1, alignSelf: "flex-end" }}
                     >
-                      Mark as Ready
+                      Mark as Done
                     </Button>
                   </ListItem>
                 ))}
-            </List>
+              </List>
+            )}
           </CardContent>
         </Card>
       </Box>

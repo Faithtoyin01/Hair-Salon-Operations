@@ -1,23 +1,18 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
   Button,
-  TextField,
+  Fade,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Card,
-  CardContent,
-  Fade,
+  TextField,
 } from "@mui/material";
-import {
-  Event as EventIcon,
-  Payment as PaymentIcon,
-} from "@mui/icons-material";
-import { sendMockNotification } from "../utils";
+import { Event as EventIcon } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import moment from "moment-timezone";
 
 const BookingPage = ({
   user,
@@ -28,191 +23,144 @@ const BookingPage = ({
   payments,
   setPayments,
 }) => {
-  const [service, setService] = useState("");
-  const [stylist, setStylist] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [otp, setOtp] = useState("");
+  const [appointment, setAppointment] = useState({
+    serviceId: "",
+    stylistId: "",
+    dateTime: "",
+    customerEmail: user.email || "",
+  });
   const navigate = useNavigate();
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setAppointment({ ...appointment, [name]: value });
+  };
+
   const handleSubmit = () => {
-    if (service && stylist && date && time && paymentMethod) {
-      const selectedService = services.find((s) => s.name === service);
-      const selectedStylist = staff.find((s) => s.name === stylist);
-      if (!selectedService || !selectedStylist) {
-        alert("Invalid service or stylist selected");
-        return;
-      }
-      if (
-        paymentMethod !== "cash" &&
-        (!cardNumber || !expiryDate || !cvv || !otp)
-      ) {
-        alert("Please fill in all payment details");
-        return;
-      }
+    if (
+      appointment.serviceId &&
+      appointment.stylistId &&
+      appointment.dateTime &&
+      appointment.customerEmail
+    ) {
       const newAppointment = {
         id: appointments.length + 1,
-        customerId: user.id,
-        stylistId: selectedStylist.id,
-        serviceId: selectedService.id,
-        dateTime: `${date}T${time}`,
-        status: "Booked",
-        paymentStatus: "Paid",
+        userId: user.id,
+        customerEmail: appointment.customerEmail,
+        serviceId: parseInt(appointment.serviceId),
+        stylistId: parseInt(appointment.stylistId),
+        dateTime: appointment.dateTime,
+        status: "confirmed",
       };
-      const newAppointments = [...appointments, newAppointment];
-      setAppointments(newAppointments);
-      setPayments([
-        ...payments,
-        {
-          id: payments.length + 1,
-          customerId: user.id,
-          amount: selectedService.price,
-          paymentMethod,
-          date: new Date().toISOString(),
-        },
-      ]);
-      sendMockNotification(
-        user.email,
-        `Appointment booked for ${service} on ${date} at ${time}. Payment of ₦${selectedService.price} confirmed.`
+      const service = services.find(
+        (s) => s.id === parseInt(appointment.serviceId)
       );
-      alert("Payment processed successfully!");
+      const newPayment = {
+        id: payments.length + 1,
+        appointmentId: newAppointment.id,
+        amount: service ? service.price : 0,
+        date: new Date().toISOString(),
+      };
+      const updatedAppointments = [...appointments, newAppointment];
+      const updatedPayments = [...payments, newPayment];
+
+      setAppointments(updatedAppointments);
+      setPayments(updatedPayments);
+      localStorage.setItem("appointments", JSON.stringify(updatedAppointments));
+      localStorage.setItem("payments", JSON.stringify(updatedPayments));
+
+      // Send to service worker
+      if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: "STORE_APPOINTMENTS",
+          data: updatedAppointments.map((a) => ({
+            ...a,
+            stylistName:
+              staff.find((s) => s.id === a.stylistId)?.name || "Stylist",
+          })),
+        });
+      }
+
       navigate("/customer-dashboard");
     } else {
       alert("Please fill in all fields");
     }
   };
 
+  // Ask for notification permission once
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+  }, []);
+
   return (
     <Fade in timeout={1000}>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 3,
-          maxWidth: "400px",
-          mx: "auto",
-          mt: 4,
-        }}
-      >
-        <Card sx={{ bgcolor: "background.paper" }}>
-          <CardContent
-            sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }}>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 500,
+            color: "primary.main",
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <EventIcon />
+          Book an Appointment
+        </Typography>
+        <FormControl fullWidth>
+          <InputLabel>Service</InputLabel>
+          <Select
+            name="serviceId"
+            value={appointment.serviceId}
+            onChange={handleChange}
           >
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 500,
-                color: "primary.main",
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              <EventIcon /> Book an Appointment
-            </Typography>
-            <FormControl fullWidth>
-              <InputLabel>Service</InputLabel>
-              <Select
-                value={service}
-                onChange={(e) => setService(e.target.value)}
-              >
-                {services.map((s) => (
-                  <MenuItem key={s.id} value={s.name}>
-                    {s.name} (₦{s.price.toLocaleString()})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth>
-              <InputLabel>Stylist</InputLabel>
-              <Select
-                value={stylist}
-                onChange={(e) => setStylist(e.target.value)}
-              >
-                {staff
-                  .filter((s) => s.position === "Stylist")
-                  .map((s) => (
-                    <MenuItem key={s.id} value={s.name}>
-                      {s.name} - {s.specialty}
-                    </MenuItem>
-                  ))}
-              </Select>
-            </FormControl>
-            <TextField
-              fullWidth
-              label="Date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              fullWidth
-              label="Time"
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-            <FormControl fullWidth>
-              <InputLabel>Payment Method</InputLabel>
-              <Select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              >
-                <MenuItem value="verve">Verve Card</MenuItem>
-                <MenuItem value="visa">Visa Card</MenuItem>
-                <MenuItem value="mastercard">Mastercard</MenuItem>
-                <MenuItem value="cash">Cash</MenuItem>
-              </Select>
-            </FormControl>
-            {paymentMethod && paymentMethod !== "cash" && (
-              <>
-                <TextField
-                  fullWidth
-                  label="Card Number"
-                  value={cardNumber}
-                  onChange={(e) => setCardNumber(e.target.value)}
-                  inputProps={{ maxLength: 16 }}
-                />
-                <TextField
-                  fullWidth
-                  label="Expiry Date (MM/YY)"
-                  value={expiryDate}
-                  onChange={(e) => setExpiryDate(e.target.value)}
-                  inputProps={{ maxLength: 5 }}
-                />
-                <TextField
-                  fullWidth
-                  label="CVV"
-                  value={cvv}
-                  onChange={(e) => setCvv(e.target.value)}
-                  inputProps={{ maxLength: 3 }}
-                />
-                <TextField
-                  fullWidth
-                  label="OTP"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  inputProps={{ maxLength: 6 }}
-                />
-              </>
-            )}
-            <Button
-              fullWidth
-              variant="contained"
-              color="secondary"
-              onClick={handleSubmit}
-              startIcon={<PaymentIcon />}
-            >
-              Book and Pay
-            </Button>
-          </CardContent>
-        </Card>
+            {services.map((s) => (
+              <MenuItem key={s.id} value={s.id}>
+                {s.name} - ₦{s.price.toLocaleString()}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl fullWidth>
+          <InputLabel>Stylist</InputLabel>
+          <Select
+            name="stylistId"
+            value={appointment.stylistId}
+            onChange={handleChange}
+          >
+            {staff
+              .filter((s) => s.position === "Stylist")
+              .map((s) => (
+                <MenuItem key={s.id} value={s.id}>
+                  {s.name}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
+        <TextField
+          label="Date & Time"
+          type="datetime-local"
+          name="dateTime"
+          value={appointment.dateTime}
+          onChange={handleChange}
+          InputLabelProps={{ shrink: true }}
+          inputProps={{
+            min: moment().tz("Africa/Lagos").format("YYYY-MM-DDTHH:mm"),
+          }}
+        />
+        <TextField
+          label="Your Email"
+          name="customerEmail"
+          value={appointment.customerEmail}
+          onChange={handleChange}
+          placeholder="e.g., your.email@example.com"
+        />
+        <Button variant="contained" color="secondary" onClick={handleSubmit}>
+          Book Now
+        </Button>
       </Box>
     </Fade>
   );

@@ -66,8 +66,8 @@ export const getStaff = () => {
         specialty: "Braids & Weaves",
         experience: "5 years",
         bio: "Chiamaka is a skilled stylist specializing in intricate braids and weaves, inspired by Nigerian trends.",
-        image:
-          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+        image: "data:image/png;base64,...",
+        video: "", // ✅ New field
       },
       {
         id: 2,
@@ -80,8 +80,8 @@ export const getStaff = () => {
         specialty: "Hair Coloring & Cuts",
         experience: "3 years",
         bio: "Tunde brings creativity to hair coloring and precision cuts, with a passion for vibrant styles.",
-        image:
-          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+        image: "data:image/png;base64,...",
+        video: "", // ✅ New field
       },
     ]
   );
@@ -124,42 +124,42 @@ export const getHairstyles = () => {
         name: "Cornrows",
         description:
           "Neat, tight braids close to the scalp, perfect for a sleek look.",
-        image:
-          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+        image: "data:image/png;base64,...",
         imageUrl: "https://via.placeholder.com/300x200?text=Cornrows",
+        video: "", // ✅ New field
       },
       {
         id: 2,
         name: "Box Braids",
         description:
           "Individual braids for a versatile, low-maintenance style.",
-        image:
-          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+        image: "data:image/png;base64,...",
         imageUrl: "https://via.placeholder.com/300x200?text=Box+Braids",
+        video: "", // ✅ New field
       },
       {
         id: 3,
         name: "Weave-On",
         description: "Sew-in extensions for added length and volume.",
-        image:
-          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+        image: "data:image/png;base64,...",
         imageUrl: "https://via.placeholder.com/300x200?text=Weave-On",
+        video: "", // ✅ New field
       },
       {
         id: 4,
         name: "Fulani Braids",
         description: "Intricate braids with beads, inspired by Fulani culture.",
-        image:
-          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+        image: "data:image/png;base64,...",
         imageUrl: "https://via.placeholder.com/300x200?text=Fulani+Braids",
+        video: "", // ✅ New field
       },
       {
         id: 5,
         name: "Ghana Weaving",
         description: "Elegant woven style for a bold look.",
-        image:
-          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
+        image: "data:image/png;base64,...",
         imageUrl: "https://via.placeholder.com/300x200?text=Ghana+Weaving",
+        video: "", // ✅ New field
       },
     ]
   );

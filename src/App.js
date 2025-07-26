@@ -22,6 +22,7 @@ import {
   getPayments,
   getHairstyles,
 } from "./utils";
+import useAppointmentNotifier from "./hooks/useAppointmentNotifier";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -50,15 +51,7 @@ const App = () => {
     setFeedback(getFeedback() || []);
     setPayments(getPayments() || []);
     setHairstyles(getHairstyles() || []);
-  }, [
-    appointments,
-    staff,
-    services,
-    inventory,
-    feedback,
-    payments,
-    hairstyles,
-  ]);
+  }, []); // ✅ run once only
 
   const handleLogin = (userData) => {
     setUser(userData);
@@ -92,6 +85,19 @@ const App = () => {
     if (key === "payments") setPayments(data);
     if (key === "hairstyles") setHairstyles(data);
   };
+
+  useAppointmentNotifier(appointments, user, services, staff);
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("/service-worker.js")
+        .then((reg) => console.log("🛠️ Service Worker registered", reg.scope))
+        .catch((err) =>
+          console.error("Service Worker registration failed", err)
+        );
+    });
+  }
 
   return (
     <BrowserRouter>
@@ -211,11 +217,13 @@ const App = () => {
               path="/stylist-portfolio/:stylistId"
               element={<StylistPortfolio staff={staff} feedback={feedback} />}
             />
+
             <Route
               path="/queue-management"
               element={
-                user && user.role !== "customer" ? (
+                user && user.role === "stylist" ? (
                   <QueueManagement
+                    user={user}
                     appointments={appointments}
                     setAppointments={(data) =>
                       updateData("appointments", data, "Queue updated!")
@@ -228,6 +236,7 @@ const App = () => {
                 )
               }
             />
+
             <Route path="/hairstyles" element={<HairstylesPage />} />
           </Routes>
         </Container>

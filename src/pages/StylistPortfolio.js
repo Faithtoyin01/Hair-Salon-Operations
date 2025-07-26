@@ -51,15 +51,43 @@ const StylistPortfolio = ({ staff, feedback }) => {
                       "&:hover": { transform: "scale(1.05)" },
                     }}
                   >
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={
-                        stylist.image ||
-                        `https://via.placeholder.com/300x200?text=${stylist.name}`
-                      }
-                      alt={stylist.name}
-                    />
+                    {stylist.video && stylist.image ? (
+                      <>
+                        <CardMedia
+                          component="img"
+                          height="280"
+                          image={stylist.image}
+                          alt={stylist.name}
+                        />
+                        <video
+                          controls
+                          width="100%"
+                          style={{ borderRadius: 8, marginTop: 8 }}
+                        >
+                          <source src={stylist.video} type="video/mp4" />
+                        </video>
+                      </>
+                    ) : stylist.video ? (
+                      <video
+                        controls
+                        width="100%"
+                        height="400"
+                        style={{ borderRadius: 8 }}
+                      >
+                        <source src={stylist.video} type="video/mp4" />
+                      </video>
+                    ) : (
+                      <CardMedia
+                        component="img"
+                        height="400"
+                        image={
+                          stylist.image ||
+                          `https://via.placeholder.com/800x400?text=${stylist.name}`
+                        }
+                        alt={stylist.name}
+                      />
+                    )}
+
                     <CardContent>
                       <Typography variant="h6">{stylist.name}</Typography>
                       <Typography variant="body2" color="text.secondary">

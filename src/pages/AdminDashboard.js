@@ -65,15 +65,25 @@ const AdminDashboard = ({
     experience: "",
     bio: "",
     image: "",
+    video: "", // ✅ NEW
   });
+
   const [newHairstyle, setNewHairstyle] = useState({
     name: "",
     description: "",
     image: "",
     imageUrl: "",
+    video: "", // ✅ NEW
   });
+
   const [staffImagePreview, setStaffImagePreview] = useState("");
   const [hairstyleImagePreview, setHairstyleImagePreview] = useState("");
+
+  const [staffVideoPreview, setStaffVideoPreview] = useState("");
+  const [hairstyleVideoPreview, setHairstyleVideoPreview] = useState("");
+
+  const MAX_VIDEO_SIZE_MB = 2;
+  const MAX_ENTRIES = 10;
 
   const handleAddService = () => {
     if (newService.name && newService.description && newService.price) {
@@ -129,8 +139,11 @@ const AdminDashboard = ({
         ...newStaff,
         name: `${newStaff.firstName} ${newStaff.lastName}`,
       };
-      const updatedStaff = [...staff, newStaffMember];
+
+      const updatedStaff = [...staff, newStaffMember].slice(-MAX_ENTRIES); // ✅ Keep last MAX_ENTRIES only
       setStaff(updatedStaff);
+      localStorage.setItem("staff", JSON.stringify(updatedStaff));
+
       setNewStaff({
         firstName: "",
         lastName: "",
@@ -141,8 +154,10 @@ const AdminDashboard = ({
         experience: "",
         bio: "",
         image: "",
+        video: "",
       });
       setStaffImagePreview("");
+      setStaffVideoPreview("");
     } else {
       alert("Please fill in all staff fields");
     }
@@ -152,18 +167,28 @@ const AdminDashboard = ({
     if (
       newHairstyle.name &&
       newHairstyle.description &&
-      (newHairstyle.image || newHairstyle.imageUrl)
+      (newHairstyle.image || newHairstyle.imageUrl || newHairstyle.video)
     ) {
       const newHairstyles = [
         ...hairstyles,
         { id: hairstyles.length + 1, ...newHairstyle },
-      ];
+      ].slice(-MAX_ENTRIES); // ✅ Keep last MAX_ENTRIES only
+
       setHairstyles(newHairstyles);
       saveHairstyles(newHairstyles);
-      setNewHairstyle({ name: "", description: "", image: "", imageUrl: "" });
+      setNewHairstyle({
+        name: "",
+        description: "",
+        image: "",
+        imageUrl: "",
+        video: "",
+      });
       setHairstyleImagePreview("");
+      setHairstyleVideoPreview("");
     } else {
-      alert("Please fill in all hairstyle fields and provide an image or URL");
+      alert(
+        "Please fill in all hairstyle fields and provide at least one media file (image, image URL, or video)"
+      );
     }
   };
 
@@ -225,6 +250,66 @@ const AdminDashboard = ({
     "Fulani Braids",
     "Ghana Weaving",
   ];
+
+  const handleVideoChange = (e, setFunction, setPreview, label) => {
+    const file = e.target.files[0];
+    e.target.value = null; // Clear file input regardless of validity
+    if (!file) return;
+
+    const fileSizeMB = file.size / (1024 * 1024);
+    if (fileSizeMB > MAX_VIDEO_SIZE_MB) {
+      alert(`${label} video must be under ${MAX_VIDEO_SIZE_MB}MB`);
+      return;
+    }
+
+    if (!file.type.startsWith("video/")) {
+      alert("Please select a valid video file.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFunction((prev) => ({
+        ...prev,
+        video: reader.result,
+        image: prev.image || "",
+      }));
+      if (setPreview) setPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleImageChange = (e, setFunction, setPreview, label) => {
+    const file = e.target.files[0];
+    e.target.value = null; // Clear file input regardless of validity
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please select a valid image file.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFunction((prev) => ({
+        ...prev,
+        image: reader.result,
+        video: prev.video || "",
+      }));
+      setPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleClearImage = (setFunction, setPreview) => {
+    setFunction((prev) => ({ ...prev, image: "" }));
+    if (setPreview) setPreview("");
+  };
+
+  const handleClearVideo = (setFunction, setPreview) => {
+    setFunction((prev) => ({ ...prev, video: "" }));
+    if (setPreview) setPreview("");
+  };
 
   return (
     <Fade in timeout={1000}>
@@ -517,14 +602,20 @@ const AdminDashboard = ({
                   <Input
                     type="file"
                     accept="image/*"
-                    onChange={handleStaffImageChange}
+                    onChange={(e) =>
+                      handleImageChange(
+                        e,
+                        setNewStaff,
+                        setStaffImagePreview,
+                        "Staff"
+                      )
+                    }
+                    disabled={!!newStaff.video}
                     sx={{ mt: 1 }}
                   />
                   {staffImagePreview && (
                     <Box sx={{ mt: 2 }}>
-                      <Typography variant="body2">
-                        Staff Image Preview:
-                      </Typography>
+                      <Typography variant="body2">Image Preview:</Typography>
                       <img
                         src={staffImagePreview}
                         alt="Preview"
@@ -534,6 +625,46 @@ const AdminDashboard = ({
                           borderRadius: "8px",
                         }}
                       />
+                      <Button
+                        size="small"
+                        onClick={() =>
+                          handleClearImage(setNewStaff, setStaffImagePreview)
+                        }
+                      >
+                        Remove Image
+                      </Button>
+                    </Box>
+                  )}
+                  <Input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) =>
+                      handleVideoChange(
+                        e,
+                        setNewStaff,
+                        setStaffVideoPreview,
+                        "Staff"
+                      )
+                    }
+                    disabled={!!newStaff.image}
+                    sx={{ mt: 1 }}
+                  />
+                  {newStaff.video && (
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="body2">Video Preview:</Typography>
+                      <video
+                        src={newStaff.video}
+                        controls
+                        style={{ maxWidth: "150px", borderRadius: 8 }}
+                      />
+                      <Button
+                        size="small"
+                        onClick={() =>
+                          handleClearVideo(setNewStaff, setStaffVideoPreview)
+                        }
+                      >
+                        Remove Video
+                      </Button>
                     </Box>
                   )}
                 </>
@@ -600,14 +731,20 @@ const AdminDashboard = ({
               <Input
                 type="file"
                 accept="image/*"
-                onChange={handleHairstyleImageChange}
+                onChange={(e) =>
+                  handleImageChange(
+                    e,
+                    setNewHairstyle,
+                    setHairstyleImagePreview,
+                    "Hairstyle"
+                  )
+                }
+                disabled={!!newHairstyle.video}
                 sx={{ mt: 1 }}
               />
               {hairstyleImagePreview && (
                 <Box sx={{ mt: 2 }}>
-                  <Typography variant="body2">
-                    Hairstyle Image Preview:
-                  </Typography>
+                  <Typography variant="body2">Image Preview:</Typography>
                   <img
                     src={hairstyleImagePreview}
                     alt="Preview"
@@ -617,16 +754,54 @@ const AdminDashboard = ({
                       borderRadius: "8px",
                     }}
                   />
+                  <Button
+                    size="small"
+                    onClick={() =>
+                      handleClearImage(
+                        setNewHairstyle,
+                        setHairstyleImagePreview
+                      )
+                    }
+                  >
+                    Remove Image
+                  </Button>
                 </Box>
               )}
-              <TextField
-                label="Image URL (optional)"
-                value={newHairstyle.imageUrl}
+              <Input
+                type="file"
+                accept="video/*"
                 onChange={(e) =>
-                  setNewHairstyle({ ...newHairstyle, imageUrl: e.target.value })
+                  handleVideoChange(
+                    e,
+                    setNewHairstyle,
+                    setHairstyleVideoPreview,
+                    "Hairstyle"
+                  )
                 }
-                placeholder="e.g., https://example.com/hairstyle.jpg"
+                disabled={!!newHairstyle.image || !!newHairstyle.imageUrl}
+                sx={{ mt: 1 }}
               />
+              {newHairstyle.video && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="body2">Video Preview:</Typography>
+                  <video
+                    src={newHairstyle.video}
+                    controls
+                    style={{ maxWidth: "150px", borderRadius: 8 }}
+                  />
+                  <Button
+                    size="small"
+                    onClick={() =>
+                      handleClearVideo(
+                        setNewHairstyle,
+                        setHairstyleVideoPreview
+                      )
+                    }
+                  >
+                    Remove Video
+                  </Button>
+                </Box>
+              )}
               <Button
                 variant="contained"
                 color="secondary"

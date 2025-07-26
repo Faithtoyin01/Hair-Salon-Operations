@@ -12,6 +12,11 @@ import {
   Fade,
   TextField,
   Rating,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
 } from "@mui/material";
 import {
   Event as EventIcon,
@@ -43,45 +48,37 @@ const CustomerDashboard = ({
   services,
   staff,
 }) => {
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState("");
   const navigate = useNavigate();
+  const userAppointments = appointments.filter((a) => a.customerId === user.id);
+  const [feedbackData, setFeedbackData] = useState({}); // { appointmentId: { rating, comment } }
+
+  const handleFeedbackChange = (id, field, value) => {
+    setFeedbackData((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        [field]: value,
+      },
+    }));
+  };
 
   const handleFeedbackSubmit = (appointmentId) => {
-    if (rating && comment) {
+    const data = feedbackData[appointmentId];
+    if (data?.rating && data?.comment) {
       const newFeedback = {
         id: feedback.length + 1,
         customerId: user.id,
         appointmentId,
-        rating,
-        comments: comment,
+        rating: data.rating,
+        comments: data.comment,
       };
       setFeedback([...feedback, newFeedback]);
       sendMockNotification(user.email, "Thank you for your feedback!");
-      setRating(0);
-      setComment("");
+      setFeedbackData((prev) => ({ ...prev, [appointmentId]: {} }));
     } else {
       alert("Please provide rating and comment");
     }
   };
-
-  if (!services || !staff) {
-    return (
-      <Fade in timeout={1000}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }}>
-          <Typography
-            variant="h5"
-            sx={{ fontWeight: 500, color: "primary.main" }}
-          >
-            Welcome, {user.firstName}!
-          </Typography>
-          <Typography color="error.main">
-            Error: Services or staff data is not available.
-          </Typography>
-        </Box>
-      </Fade>
-    );
-  }
 
   return (
     <Fade in timeout={1000}>
@@ -92,6 +89,7 @@ const CustomerDashboard = ({
         >
           Welcome, {user.firstName}!
         </Typography>
+
         <Card sx={{ bgcolor: "background.paper" }}>
           <CardContent
             sx={{ display: "flex", flexDirection: "column", gap: 2 }}
@@ -102,78 +100,35 @@ const CustomerDashboard = ({
             >
               <EventIcon /> Your Appointments
             </Typography>
-            {appointments.filter((a) => a.customerId === user.id).length ===
-            0 ? (
-              <Typography color="text.secondary">
-                No appointments booked yet.
-              </Typography>
-            ) : (
-              <List>
-                {appointments
-                  .filter((a) => a.customerId === user.id)
-                  .map((appointment) => (
-                    <ListItem
-                      key={appointment.id}
-                      sx={{
-                        bgcolor: "background.default",
-                        borderRadius: 2,
-                        mb: 1,
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "flex-start",
-                      }}
-                    >
-                      <ListItemText
-                        primary={`${
-                          services.find((s) => s.id === appointment.serviceId)
-                            ?.name || "Unknown Service"
-                        } with ${
-                          staff.find((s) => s.id === appointment.stylistId)
-                            ?.name || "Unknown Stylist"
-                        }`}
-                        secondary={`Date: ${
-                          appointment.dateTime.split("T")[0]
-                        } | Time: ${
-                          appointment.dateTime.split("T")[1]
-                        } | Status: ${appointment.status}`}
-                      />
-                      <Box sx={{ mt: 1 }}>
-                        <Rating
-                          value={rating}
-                          onChange={(e, v) => setRating(v)}
-                        />
-                        <TextField
-                          label="Feedback"
-                          value={comment}
-                          onChange={(e) => setComment(e.target.value)}
-                          multiline
-                          rows={2}
-                          sx={{ mt: 1, width: "100%" }}
-                        />
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          onClick={() => handleFeedbackSubmit(appointment.id)}
-                          startIcon={<FeedbackIcon />}
-                          sx={{ mt: 1 }}
-                        >
-                          Submit Feedback
-                        </Button>
-                      </Box>
-                    </ListItem>
-                  ))}
-              </List>
-            )}
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => navigate("/booking")}
-              startIcon={<EventIcon />}
-            >
-              Book Another Appointment
-            </Button>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Service</TableCell>
+                  <TableCell>Stylist</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {appointments.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell>
+                      {services.find((s) => s.id === a.serviceId)?.name ||
+                        "Unknown Service"}
+                    </TableCell>
+                    <TableCell>
+                      {staff.find((s) => s.id === a.stylistId)?.name ||
+                        "Unknown Stylist"}
+                    </TableCell>
+                    <TableCell>{a.dateTime.split("T")[0]}</TableCell>
+                    <TableCell>{a.status}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
+
         <Card sx={{ bgcolor: "background.paper" }}>
           <CardContent
             sx={{ display: "flex", flexDirection: "column", gap: 2 }}

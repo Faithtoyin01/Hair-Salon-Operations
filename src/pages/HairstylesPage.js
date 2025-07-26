@@ -14,6 +14,60 @@ import { getHairstyles } from "../utils";
 const HairstylesPage = () => {
   const hairstyles = getHairstyles();
 
+  const renderMedia = (style) => {
+    const hasImage = style.image || style.imageUrl;
+    const hasVideo = !!style.video;
+
+    if (hasImage && hasVideo) {
+      return (
+        <>
+          <CardMedia
+            component="img"
+            height="160"
+            image={
+              style.image?.startsWith("data:image")
+                ? style.image
+                : style.imageUrl
+            }
+            alt={style.name}
+            sx={{ borderTopLeftRadius: 8, borderTopRightRadius: 8 }}
+          />
+          <video
+            controls
+            width="100%"
+            style={{ borderRadius: 8, marginTop: 8 }}
+          >
+            <source src={style.video} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </>
+      );
+    }
+
+    if (hasVideo) {
+      return (
+        <video controls width="100%" height="200" style={{ borderRadius: 8 }}>
+          <source src={style.video} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      );
+    }
+
+    return (
+      <CardMedia
+        component="img"
+        height="200"
+        image={
+          style.image?.startsWith("data:image")
+            ? style.image
+            : style.imageUrl ||
+              `https://via.placeholder.com/300x200?text=${style.name}`
+        }
+        alt={style.name}
+      />
+    );
+  };
+
   return (
     <Fade in timeout={1000}>
       <Box
@@ -47,17 +101,7 @@ const HairstylesPage = () => {
                   "&:hover": { transform: "scale(1.05)" },
                 }}
               >
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={
-                    style.image && style.image.startsWith("data:image/")
-                      ? style.image
-                      : style.imageUrl ||
-                        `https://via.placeholder.com/300x200?text=${style.name}`
-                  }
-                  alt={style.name}
-                />
+                {renderMedia(style)}
                 <CardContent>
                   <Typography variant="h6">{style.name}</Typography>
                   <Typography variant="body2" color="text.secondary">
