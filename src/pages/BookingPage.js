@@ -13,6 +13,9 @@ import {
 import { Event as EventIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import moment from "moment-timezone";
+import CreditCardIcon from "@mui/icons-material/CreditCard";
+import PaymentIcon from "@mui/icons-material/Payment";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 
 const BookingPage = ({
   user,
@@ -28,7 +31,16 @@ const BookingPage = ({
     stylistId: "",
     dateTime: "",
     customerEmail: user.email || "",
+    paymentMethod: "Cash", // default
   });
+
+  const [cardDetails, setCardDetails] = useState({
+    name: "",
+    number: "",
+    expiry: "",
+    cvv: "",
+  });
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -37,6 +49,14 @@ const BookingPage = ({
   };
 
   const handleSubmit = () => {
+    if (["Verve", "Visa", "Mastercard"].includes(appointment.paymentMethod)) {
+      const { name, number, expiry, cvv } = cardDetails;
+      if (!name || !number || !expiry || !cvv) {
+        alert("Please fill in all card details");
+        return;
+      }
+    }
+
     if (
       appointment.serviceId &&
       appointment.stylistId &&
@@ -60,7 +80,9 @@ const BookingPage = ({
         appointmentId: newAppointment.id,
         amount: service ? service.price : 0,
         date: new Date().toISOString(),
+        method: appointment.paymentMethod, // ✅ Store selected method
       };
+
       const updatedAppointments = [...appointments, newAppointment];
       const updatedPayments = [...payments, newPayment];
 
@@ -158,6 +180,82 @@ const BookingPage = ({
           onChange={handleChange}
           placeholder="e.g., your.email@example.com"
         />
+
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
+            Payment Method
+          </Typography>
+
+          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+            {[
+              { name: "Cash", icon: <AttachMoneyIcon /> },
+              { name: "Verve", icon: <PaymentIcon /> },
+              { name: "Visa", icon: <CreditCardIcon /> },
+              { name: "Mastercard", icon: <CreditCardIcon /> },
+            ].map((method) => (
+              <Button
+                key={method.name}
+                variant={
+                  appointment.paymentMethod === method.name
+                    ? "contained"
+                    : "outlined"
+                }
+                color="primary"
+                onClick={() =>
+                  setAppointment({ ...appointment, paymentMethod: method.name })
+                }
+                startIcon={method.icon}
+                sx={{ textTransform: "none", minWidth: 120 }}
+              >
+                {method.name}
+              </Button>
+            ))}
+          </Box>
+        </Box>
+
+        {["Verve", "Visa", "Mastercard"].includes(
+          appointment.paymentMethod
+        ) && (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+            <TextField
+              fullWidth
+              label="Cardholder Name"
+              value={cardDetails.name}
+              onChange={(e) =>
+                setCardDetails({ ...cardDetails, name: e.target.value })
+              }
+            />
+            <TextField
+              fullWidth
+              label="Card Number"
+              value={cardDetails.number}
+              onChange={(e) =>
+                setCardDetails({ ...cardDetails, number: e.target.value })
+              }
+              inputProps={{ maxLength: 16 }}
+            />
+            <Box sx={{ display: "flex", gap: 2 }}>
+              <TextField
+                label="Expiry (MM/YY)"
+                value={cardDetails.expiry}
+                onChange={(e) =>
+                  setCardDetails({ ...cardDetails, expiry: e.target.value })
+                }
+                sx={{ flex: 1 }}
+              />
+              <TextField
+                label="CVV"
+                value={cardDetails.cvv}
+                onChange={(e) =>
+                  setCardDetails({ ...cardDetails, cvv: e.target.value })
+                }
+                inputProps={{ maxLength: 3 }}
+                sx={{ flex: 1 }}
+              />
+            </Box>
+          </Box>
+        )}
+
         <Button variant="contained" color="secondary" onClick={handleSubmit}>
           Book Now
         </Button>
