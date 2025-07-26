@@ -49,6 +49,7 @@ const BookingPage = ({
   };
 
   const handleSubmit = () => {
+    // Check card details if payment method is card-based
     if (["Verve", "Visa", "Mastercard"].includes(appointment.paymentMethod)) {
       const { name, number, expiry, cvv } = cardDetails;
       if (!name || !number || !expiry || !cvv) {
@@ -72,15 +73,17 @@ const BookingPage = ({
         dateTime: appointment.dateTime,
         status: "confirmed",
       };
+
       const service = services.find(
         (s) => s.id === parseInt(appointment.serviceId)
       );
+
       const newPayment = {
         id: payments.length + 1,
         appointmentId: newAppointment.id,
         amount: service ? service.price : 0,
         date: new Date().toISOString(),
-        method: appointment.paymentMethod, // ✅ Store selected method
+        method: appointment.paymentMethod,
       };
 
       const updatedAppointments = [...appointments, newAppointment];
@@ -109,7 +112,7 @@ const BookingPage = ({
     }
   };
 
-  // Ask for notification permission once
+  // ✅ Ask for notification permission once (from your working version)
   useEffect(() => {
     if ("Notification" in window && Notification.permission !== "granted") {
       Notification.requestPermission();
@@ -132,6 +135,7 @@ const BookingPage = ({
           <EventIcon />
           Book an Appointment
         </Typography>
+
         <FormControl fullWidth>
           <InputLabel>Service</InputLabel>
           <Select
@@ -146,6 +150,7 @@ const BookingPage = ({
             ))}
           </Select>
         </FormControl>
+
         <FormControl fullWidth>
           <InputLabel>Stylist</InputLabel>
           <Select
@@ -162,6 +167,7 @@ const BookingPage = ({
               ))}
           </Select>
         </FormControl>
+
         <TextField
           label="Date & Time"
           type="datetime-local"
@@ -173,6 +179,7 @@ const BookingPage = ({
             min: moment().tz("Africa/Lagos").format("YYYY-MM-DDTHH:mm"),
           }}
         />
+
         <TextField
           label="Your Email"
           name="customerEmail"
@@ -213,6 +220,7 @@ const BookingPage = ({
           </Box>
         </Box>
 
+        {/* Show card details only if needed */}
         {["Verve", "Visa", "Mastercard"].includes(
           appointment.paymentMethod
         ) && (

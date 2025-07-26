@@ -126,6 +126,14 @@ const CustomerDashboard = ({
                 ))}
               </TableBody>
             </Table>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => navigate("/booking")}
+              startIcon={<EventIcon />}
+            >
+              Book Another Appointment
+            </Button>
           </CardContent>
         </Card>
 
