@@ -249,6 +249,11 @@ const AdminDashboard = ({
     "Weave-On",
     "Fulani Braids",
     "Ghana Weaving",
+    "Inner Ghana Weaving",
+    "Inner Stitches",
+    "Mermaid Styles",
+    "Mini Twisting",
+    "Kinky Braids",
   ];
 
   const handleVideoChange = (e, setFunction, setPreview, label) => {
@@ -599,20 +604,33 @@ const AdminDashboard = ({
                       setNewStaff({ ...newStaff, bio: e.target.value })
                     }
                   />
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) =>
-                      handleImageChange(
-                        e,
-                        setNewStaff,
-                        setStaffImagePreview,
-                        "Staff"
-                      )
-                    }
-                    disabled={!!newStaff.video}
-                    sx={{ mt: 1 }}
-                  />
+                  {/* Image Upload Section */}
+                  <label htmlFor="staff-image-upload">
+                    <Input
+                      id="staff-image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) =>
+                        handleImageChange(
+                          e,
+                          setNewStaff,
+                          setStaffImagePreview,
+                          "Staff"
+                        )
+                      }
+                      disabled={!!newStaff.video}
+                      sx={{ display: "none" }}
+                    />
+                    <Button
+                      variant="outlined"
+                      component="span"
+                      sx={{ mt: 1 }}
+                      disabled={!!newStaff.video}
+                    >
+                      Choose Image File
+                    </Button>
+                  </label>
+
                   {staffImagePreview && (
                     <Box sx={{ mt: 2 }}>
                       <Typography variant="body2">Image Preview:</Typography>
@@ -635,20 +653,34 @@ const AdminDashboard = ({
                       </Button>
                     </Box>
                   )}
-                  <Input
-                    type="file"
-                    accept="video/*"
-                    onChange={(e) =>
-                      handleVideoChange(
-                        e,
-                        setNewStaff,
-                        setStaffVideoPreview,
-                        "Staff"
-                      )
-                    }
-                    disabled={!!newStaff.image}
-                    sx={{ mt: 1 }}
-                  />
+
+                  {/* Video Upload Section */}
+                  <label htmlFor="staff-video-upload">
+                    <Input
+                      id="staff-video-upload"
+                      type="file"
+                      accept="video/*"
+                      onChange={(e) =>
+                        handleVideoChange(
+                          e,
+                          setNewStaff,
+                          setStaffVideoPreview,
+                          "Staff"
+                        )
+                      }
+                      disabled={!!newStaff.image}
+                      sx={{ display: "none" }}
+                    />
+                    <Button
+                      variant="outlined"
+                      component="span"
+                      sx={{ mt: 1 }}
+                      disabled={!!newStaff.image}
+                    >
+                      Choose Video File
+                    </Button>
+                  </label>
+
                   {newStaff.video && (
                     <Box sx={{ mt: 2 }}>
                       <Typography variant="body2">Video Preview:</Typography>
@@ -728,20 +760,33 @@ const AdminDashboard = ({
                   })
                 }
               />
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  handleImageChange(
-                    e,
-                    setNewHairstyle,
-                    setHairstyleImagePreview,
-                    "Hairstyle"
-                  )
-                }
-                disabled={!!newHairstyle.video}
-                sx={{ mt: 1 }}
-              />
+              {/* Image Upload Section */}
+              <label htmlFor="image-upload">
+                <Input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    handleImageChange(
+                      e,
+                      setNewHairstyle,
+                      setHairstyleImagePreview,
+                      "Hairstyle"
+                    )
+                  }
+                  disabled={!!newHairstyle.video}
+                  sx={{ display: "none" }}
+                />
+                <Button
+                  variant="outlined"
+                  component="span"
+                  sx={{ mt: 1 }}
+                  disabled={!!newHairstyle.video}
+                >
+                  Choose Image File
+                </Button>
+              </label>
+
               {hairstyleImagePreview && (
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="body2">Image Preview:</Typography>
@@ -767,20 +812,34 @@ const AdminDashboard = ({
                   </Button>
                 </Box>
               )}
-              <Input
-                type="file"
-                accept="video/*"
-                onChange={(e) =>
-                  handleVideoChange(
-                    e,
-                    setNewHairstyle,
-                    setHairstyleVideoPreview,
-                    "Hairstyle"
-                  )
-                }
-                disabled={!!newHairstyle.image || !!newHairstyle.imageUrl}
-                sx={{ mt: 1 }}
-              />
+
+              {/* Video Upload Section */}
+              <label htmlFor="video-upload">
+                <Input
+                  id="video-upload"
+                  type="file"
+                  accept="video/*"
+                  onChange={(e) =>
+                    handleVideoChange(
+                      e,
+                      setNewHairstyle,
+                      setHairstyleVideoPreview,
+                      "Hairstyle"
+                    )
+                  }
+                  disabled={!!newHairstyle.image || !!newHairstyle.imageUrl}
+                  sx={{ display: "none" }}
+                />
+                <Button
+                  variant="outlined"
+                  component="span"
+                  sx={{ mt: 1 }}
+                  disabled={!!newHairstyle.image || !!newHairstyle.imageUrl}
+                >
+                  Choose Video File
+                </Button>
+              </label>
+
               {newHairstyle.video && (
                 <Box sx={{ mt: 2 }}>
                   <Typography variant="body2">Video Preview:</Typography>
