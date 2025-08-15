@@ -1,2 +1,2 @@
-# Signal Web App
- A web3 web app
+# Hair Salon Web App
+ Link to <a href="https://hair-salon-operations.netlify.app"> Live Site </a>
